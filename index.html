@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f7f7f5" />
+<title>Range Lab V4</title>
+<style>
+:root{
+  --bg:#f7f7f5; --card:#ffffff; --text:#111111; --muted:#6d6d70; --line:#deded8;
+  --accent:#111111; --good:#e9f4ea; --bad:#f5e9e7; --shadow:0 8px 30px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+body{display:flex;justify-content:center}
+button{font:inherit}
+.app{width:min(100%,520px);min-height:100dvh;padding:env(safe-area-inset-top) 18px env(safe-area-inset-bottom);display:flex;flex-direction:column}
+.screen{display:none;min-height:100dvh;flex-direction:column;padding:24px 0 28px}.screen.active{display:flex}
+.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+h1{font-size:44px;line-height:.98;letter-spacing:-.045em;margin:10px 0 12px}h2{font-size:31px;line-height:1.05;letter-spacing:-.035em;margin:6px 0 10px}p{font-size:18px;line-height:1.42;margin:0;color:var(--muted)}
+.hero{margin:auto 0}.stack{display:grid;gap:12px;margin-top:28px}.btn{border:0;border-radius:18px;padding:19px 18px;font-weight:750;background:var(--accent);color:white;cursor:pointer;min-height:62px}.btn.secondary{background:var(--card);color:var(--text);border:1px solid var(--line)}.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.small{font-size:14px;color:var(--muted)}.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:26px}.iconbtn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:10px 14px;font-weight:650}
+.onboarding{justify-content:center}.onboarding-copy{font-size:31px;line-height:1.28;letter-spacing:-.03em;color:var(--text);font-weight:700;white-space:pre-line}.onboarding-copy.fade{animation:onboardFade .55s ease both}@keyframes onboardFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.onboarding-copy .muted{color:var(--muted);font-weight:600}.dots{display:flex;gap:7px;margin-top:28px}.dot{width:7px;height:7px;border-radius:99px;background:#c9c9c5}.dot.active{background:#111}
+.club-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}.club{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:16px 8px;font-weight:700;min-height:58px}.club.selected{background:#111;color:#fff;border-color:#111}.section-label{margin-top:18px;font-weight:750;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.session-header{text-align:center}.hole{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:750}.shot-name{font-size:56px;line-height:.95;letter-spacing:-.055em;font-weight:820;margin:30px 0 8px}.shot-note{font-size:18px;color:var(--muted);min-height:28px}.progress{height:7px;background:#e3e3df;border-radius:99px;overflow:hidden;margin:18px 0 28px}.progress>div{height:100%;background:#111;width:0%;transition:width .25s ease}
+.feedback{margin-top:auto;display:grid;gap:18px}.feedback-group{display:grid;gap:10px}.feedback-label{text-align:center;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:750}.dpad{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-areas:'. long .' 'left . right' '. short .';gap:10px;align-items:center}.dpad .long{grid-area:long}.dpad .left{grid-area:left}.dpad .right{grid-area:right}.dpad .short{grid-area:short}.strike-row,.shape-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.feedback-btn{border:1px solid var(--line);background:var(--card);border-radius:18px;min-height:62px;font-weight:780;font-size:16px}.feedback-btn.selected{background:#111;color:#fff;border-color:#111}.submit-shot{margin-top:2px}.transition{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:30px 10px}.transition-wrap{width:100%;display:flex;flex-direction:column;align-items:center}.transition-text{font-size:38px;line-height:1.14;letter-spacing:-.04em;font-weight:780;white-space:pre-line}.breath-orb{width:86px;height:86px;border-radius:50%;border:2px solid #111;margin:28px 0 22px;animation:breathe 8s ease-in-out infinite}.reset-progress{width:180px;height:4px;border-radius:99px;background:#deded8;overflow:hidden;margin-top:26px}.reset-progress>div{height:100%;width:0;background:#111}.reset-progress.run>div{animation:resetFill 8s linear forwards}@keyframes breathe{0%,100%{transform:scale(.78);opacity:.55}50%{transform:scale(1.18);opacity:1}}@keyframes resetFill{from{width:0}to{width:100%}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow)}.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:22px 0}.stat .num{font-size:34px;font-weight:820;letter-spacing:-.04em}.stat .label{font-size:13px;color:var(--muted);margin-top:3px}.club-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #ecece8}.club-row:last-child{border-bottom:0}.takeaway{font-size:19px;line-height:1.4;color:var(--text);font-weight:650}.spacer{flex:1}.footer-note{text-align:center;font-size:13px;color:var(--muted);margin-top:14px}
+@media (max-width:380px){h1{font-size:38px}.shot-name{font-size:48px}.club-grid{grid-template-columns:repeat(3,1fr)}.outcome{min-height:64px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <section id="onboarding" class="screen onboarding">
+    <div id="onboardingText" class="onboarding-copy"></div>
+    <div class="dots" id="dots"></div>
+    <div class="stack"><button class="btn" id="onboardingNext">Continue</button></div>
+  </section>
+
+  <section id="home" class="screen">
+    <div class="topbar"><div class="eyebrow">Range Lab</div><button class="iconbtn" id="editBagBtn">Bag</button></div>
+    <div class="hero">
+      <h1>Practice like you play.</h1>
+      <p>Every shot is called before you hit it. One ball. One decision. One swing.</p>
+      <div class="stack">
+        <button class="btn" data-holes="3">Play 3</button>
+        <button class="btn" data-holes="9">Play 9</button>
+        <button class="btn" data-holes="18">Play 18</button>
+      </div>
+    </div>
+    <div class="footer-note">Every shot is called before you hit it.</div>
+  </section>
+
+  <section id="bag" class="screen">
+    <div class="topbar"><button class="iconbtn" id="bagBack">Back</button><div class="eyebrow">Build Your Bag</div><span style="width:58px"></span></div>
+    <h2>What do you carry?</h2><p>Select every full-swing club you want Range Lab to call.</p>
+    <div id="clubSections"></div>
+    <div class="spacer"></div>
+    <div class="stack"><button class="btn" id="saveBag">Save Bag</button></div>
+  </section>
+
+  <section id="shot" class="screen">
+    <div class="topbar"><button class="iconbtn" id="quitBtn">Quit</button><div id="sessionCount" class="eyebrow"></div><span style="width:58px"></span></div>
+    <div class="session-header">
+      <div id="holeLabel" class="hole"></div>
+      <div id="shotName" class="shot-name"></div>
+      <div id="shotNote" class="shot-note"></div>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div class="feedback">
+      <div class="feedback-group">
+        <div class="feedback-label">Result</div>
+        <div class="dpad">
+          <button class="feedback-btn long" data-result="Long">Long</button>
+          <button class="feedback-btn left" data-result="Left">Left</button>
+          <button class="feedback-btn right" data-result="Right">Right</button>
+          <button class="feedback-btn short" data-result="Short">Short</button>
+        </div>
+      </div>
+      <div class="feedback-group">
+        <div class="feedback-label">Contact</div>
+        <div class="strike-row">
+          <button class="feedback-btn" data-contact="Thin">Thin</button>
+          <button class="feedback-btn" data-contact="Solid">Solid</button>
+          <button class="feedback-btn" data-contact="Fat">Fat</button>
+        </div>
+      </div>
+      <div class="feedback-group" id="shapeGroup" style="display:none">
+        <div class="feedback-label">Shot Shape</div>
+        <div class="shape-row">
+          <button class="feedback-btn" data-shape="Fade">Fade</button>
+          <button class="feedback-btn" data-shape="Straight">Straight</button>
+          <button class="feedback-btn" data-shape="Draw">Draw</button>
+        </div>
+      </div>
+      <button class="btn submit-shot" id="submitShot">Next Shot</button>
+    </div>
+  </section>
+
+  <section id="between" class="screen">
+    <div class="transition"><div class="transition-wrap"><div class="eyebrow" id="betweenEyebrow"></div><div class="breath-orb" id="breathOrb"></div><div class="transition-text" id="betweenText">Deep breath.
+Let it go.</div><div class="reset-progress" id="resetProgress"><div></div></div></div></div>
+  </section>
+
+  <section id="summary" class="screen">
+    <div class="eyebrow">Session Complete</div><h1 id="summaryTitle">9 holes.</h1><p id="summarySub"></p>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="card"><div class="eyebrow">By Club</div><div id="clubStats"></div></div>
+    <div class="card" style="margin-top:12px"><div class="eyebrow">Today's Takeaway</div><div class="takeaway" id="takeaway" style="margin-top:10px"></div></div>
+    <div class="stack"><button class="btn" id="playAgain">Practice Again</button><button class="btn secondary" id="summaryHome">Home</button></div>
+  </section>
+</div>
+<script>
+const CLUBS = {
+  Woods:["Driver","3 Wood","5 Wood","7 Wood","9 Wood"],
+  Hybrids:["3 Hybrid","4 Hybrid","5 Hybrid"],
+  Irons:["4 Iron","5 Iron","6 Iron","7 Iron","8 Iron","9 Iron"],
+  Wedges:["PW","GW","AW","52°","54°","56°","58°","60°","SW","LW"]
+};
+const defaults=["Driver","5 Wood","4 Hybrid","5 Iron","6 Iron","7 Iron","8 Iron","9 Iron","PW","GW","56°"];
+let bag = JSON.parse(localStorage.getItem('rangeLabBag')||'null') || defaults;
+let session=null;
+let shotFeedback={result:null,contact:null,shape:null};
+const screens=[...document.querySelectorAll('.screen')];
+function show(id){ screens.forEach(s=>s.classList.toggle('active',s.id===id)); window.scrollTo(0,0); }
+
+const onboardingPages=[
+`The driving range isn't the course.\n\nHit a shot.\nMiss it.\nHit another.\nTry it again.\n\nOn the course, you don't get a second chance.`,
+`Range Lab changes the way you practice.\n\nEvery shot is called before you hit it.\n\nDriver.\n7 Iron.\nWedge.`,
+`Hit it.\n\nLive with it.\n\nMove on.`,
+`Train yourself to swing the way you would on the course.\n\nExecute on command.`,
+`Make every ball count.\n\nPractice like you play.`
+];
+let onboardIndex=0;
+function renderOnboarding(){
+  const copy=document.getElementById('onboardingText');
+  copy.classList.remove('fade');
+  copy.textContent=onboardingPages[onboardIndex];
+  void copy.offsetWidth;
+  copy.classList.add('fade');
+  document.getElementById('dots').innerHTML=onboardingPages.map((_,i)=>`<span class="dot ${i===onboardIndex?'active':''}"></span>`).join('');
+  document.getElementById('onboardingNext').textContent=onboardIndex===onboardingPages.length-1?'Build My Bag':'Continue';
+}
+document.getElementById('onboardingNext').onclick=()=>{
+  if(onboardIndex<onboardingPages.length-1){onboardIndex++;renderOnboarding();}
+  else{localStorage.setItem('rangeLabOnboardedV2','1');renderBag();show('bag');}
+};
+
+function renderBag(){
+ const wrap=document.getElementById('clubSections'); wrap.innerHTML='';
+ Object.entries(CLUBS).forEach(([section,clubs])=>{
+   const label=document.createElement('div'); label.className='section-label'; label.textContent=section; wrap.appendChild(label);
+   const grid=document.createElement('div'); grid.className='club-grid';
+   clubs.forEach(club=>{const b=document.createElement('button'); b.className='club '+(bag.includes(club)?'selected':''); b.textContent=club; b.onclick=()=>{b.classList.toggle('selected');}; grid.appendChild(b);}); wrap.appendChild(grid);
+ });
+}
+document.getElementById('saveBag').onclick=()=>{
+ bag=[...document.querySelectorAll('.club.selected')].map(b=>b.textContent);
+ if(bag.length<4){alert('Select at least 4 clubs for full-bag practice.');return;}
+ localStorage.setItem('rangeLabBag',JSON.stringify(bag)); show('home');
+};
+document.getElementById('editBagBtn').onclick=()=>{renderBag();show('bag')};
+document.getElementById('bagBack').onclick=()=>show('home');
+
+function category(club){
+ if(club==='Driver') return 'driver';
+ if(/Wood|Hybrid/.test(club)) return 'long';
+ if(/[4-6] Iron/.test(club)) return 'mid';
+ if(/[7-9] Iron/.test(club)) return 'short';
+ return 'wedge';
+}
+function pick(cat, fallbackCats=[]){
+ const pool=bag.filter(c=>category(c)===cat);
+ if(pool.length) return pool[Math.floor(Math.random()*pool.length)];
+ for(const f of fallbackCats){const p=bag.filter(c=>category(c)===f); if(p.length)return p[Math.floor(Math.random()*p.length)];}
+ return bag[Math.floor(Math.random()*bag.length)];
+}
+function maybeShotShape(club){
+ const eligible=['mid','short'].includes(category(club));
+ if(!eligible || Math.random()>=0.25) return {club,shape:null,display:club};
+ const shape=Math.random()<0.5?'Fade':'Draw';
+ return {club,shape,display:`${club} — ${shape}`};
+}
+function holePattern(par){
+ if(par===3){
+   const club=Math.random()<0.35?pick('long',['mid']):pick('mid',['short']);
+   return [maybeShotShape(club)];
+ }
+ if(par===4){
+   const tee=Math.random()<0.18?pick('long',['driver']):pick('driver',['long']);
+   const approach=Math.random()<0.55?pick('mid',['short','long']):pick('short',['mid']);
+   return [{club:tee,shape:null,display:tee},maybeShotShape(approach)];
+ }
+ const tee=pick('driver',['long']);
+ const second=Math.random()<0.55?pick('long',['mid']):pick('mid',['long']);
+ const third=Math.random()<0.7?pick('wedge',['short']):pick('short',['wedge']);
+ return [{club:tee,shape:null,display:tee},maybeShotShape(second),{club:third,shape:null,display:third}];
+}
+function courseMix(n){
+ const pars=[];
+ for(let i=0;i<n;i++) pars.push(4);
+ if(n===3){pars[0]=3;pars[2]=5;}
+ else {
+   const par3count=n===9?2:4, par5count=n===9?2:4;
+   let idx=[...Array(n).keys()].sort(()=>Math.random()-.5);
+   idx.slice(0,par3count).forEach(i=>pars[i]=3);
+   idx.slice(par3count,par3count+par5count).forEach(i=>pars[i]=5);
+ }
+ return pars;
+}
+function buildSession(n){
+ const pars=courseMix(n);
+ const holes=pars.map((par,i)=>({num:i+1,par,shots:holePattern(par)}));
+ return {holes, holeIndex:0, shotIndex:0, results:[], totalPlanned:holes.reduce((a,h)=>a+h.shots.length,0)};
+}
+function current(){const h=session.holes[session.holeIndex]; return {h, shot:h.shots[session.shotIndex]};}
+function renderShot(){
+ const {h,shot}=current();
+ shotFeedback={result:null,contact:null,shape:null};
+ document.querySelectorAll('.feedback-btn').forEach(b=>b.classList.remove('selected'));
+ document.getElementById('shapeGroup').style.display=shot.shape?'grid':'none';
+ document.getElementById('sessionCount').textContent=`${session.holeIndex+1} / ${session.holes.length}`;
+ document.getElementById('holeLabel').textContent=`Hole ${h.num} · Par ${h.par}`;
+ document.getElementById('shotName').textContent=shot.display;
+ document.getElementById('shotNote').textContent=session.shotIndex===0?'Pick a target. Commit to the shot.':'Reset. New club. New target.';
+ const done=session.results.length; document.getElementById('progressBar').style.width=`${(done/session.totalPlanned)*100}%`;
+ show('shot');
+}
+function start(n){session=buildSession(n);renderShot();}
+document.querySelectorAll('[data-holes]').forEach(b=>b.onclick=()=>start(+b.dataset.holes));
+
+document.querySelectorAll('[data-result]').forEach(b=>b.onclick=()=>{shotFeedback.result=b.dataset.result;document.querySelectorAll('[data-result]').forEach(x=>x.classList.toggle('selected',x===b));});
+document.querySelectorAll('[data-contact]').forEach(b=>b.onclick=()=>{shotFeedback.contact=b.dataset.contact;document.querySelectorAll('[data-contact]').forEach(x=>x.classList.toggle('selected',x===b));});
+document.querySelectorAll('[data-shape]').forEach(b=>b.onclick=()=>{shotFeedback.shape=b.dataset.shape;document.querySelectorAll('[data-shape]').forEach(x=>x.classList.toggle('selected',x===b));});
+document.getElementById('submitShot').onclick=()=>record();
+function record(){
+ const {h,shot}=current();
+ if(!shotFeedback.result || !shotFeedback.contact){alert('Choose a result and contact.');return;}
+ if(shot.shape && !shotFeedback.shape){alert('Choose the shot shape.');return;}
+ session.results.push({hole:h.num,par:h.par,club:shot.club,display:shot.display,calledShape:shot.shape,result:shotFeedback.result,contact:shotFeedback.contact,actualShape:shotFeedback.shape});
+ const isLastShot=session.shotIndex===h.shots.length-1;
+ const isLastHole=session.holeIndex===session.holes.length-1;
+ if(isLastShot && isLastHole){renderSummary();return;}
+ if(isLastShot){session.holeIndex++;session.shotIndex=0;}
+ else{session.shotIndex++;}
+ showReset(isLastShot);
+}
+
+
+const resetCues=[
+  {eyebrow:'Reset', text:'Deep breath.\nLet it go.'},
+  {eyebrow:'Breathe', text:'4 seconds in.\n4 seconds out.'},
+  {eyebrow:'Reset', text:'In through your nose.\nOut through your mouth.'},
+  {eyebrow:'Next ball', text:'That shot is over.\nPrepare for the next one.'},
+  {eyebrow:'Reset', text:'Leave the last swing behind.'},
+  {eyebrow:'Routine', text:'New club.\nNew target.\nNew swing.'},
+  {eyebrow:'Commit', text:'Calm first.\nSwing second.'},
+  {eyebrow:'Routine', text:'One breath.\nOne target.\nOne swing.'},
+  {eyebrow:'Reset', text:'Slow down.\nCommit to the next one.'},
+  {eyebrow:'Breathe', text:'Breathe.\nPick a target.\nGo through your routine.'}
+];
+let lastResetCue=-1;
+function showReset(holeComplete=false){
+  let idx;
+  do{idx=Math.floor(Math.random()*resetCues.length)}while(resetCues.length>1 && idx===lastResetCue);
+  lastResetCue=idx;
+  const cue=resetCues[idx];
+  document.getElementById('betweenEyebrow').textContent=holeComplete?'Hole complete · '+cue.eyebrow:cue.eyebrow;
+  document.getElementById('betweenText').textContent=cue.text;
+  const prog=document.getElementById('resetProgress');
+  prog.classList.remove('run'); void prog.offsetWidth; prog.classList.add('run');
+  show('between');
+  setTimeout(renderShot,8000);
+}
+
+document.getElementById('quitBtn').onclick=()=>{if(confirm('End this practice session?')) show('home');};
+function pct(n,d){return d?Math.round(n/d*100):0}
+function renderSummary(){
+ const r=session.results,total=r.length;
+ const solid=r.filter(x=>x.contact==='Solid').length;
+ const dir={Left:0,Right:0,Short:0,Long:0}; r.forEach(x=>dir[x.result]=(dir[x.result]||0)+1);
+ const dominant=Object.entries(dir).sort((a,b)=>b[1]-a[1])[0];
+ const shaped=r.filter(x=>x.calledShape);
+ const shapeWins=shaped.filter(x=>x.actualShape===x.calledShape).length;
+ document.getElementById('summaryTitle').textContent=`${session.holes.length} holes complete.`;
+ document.getElementById('summarySub').textContent=`${total} called shots. No do-overs.`;
+ document.getElementById('statsGrid').innerHTML=`
+ <div class="card stat"><div class="num">${total}</div><div class="label">Total shots</div></div>
+ <div class="card stat"><div class="num">${pct(solid,total)}%</div><div class="label">Solid contact</div></div>
+ <div class="card stat"><div class="num">${dominant[1]?dominant[0]:'—'}</div><div class="label">Primary miss</div></div>
+ <div class="card stat"><div class="num">${shaped.length?pct(shapeWins,shaped.length)+'%':'—'}</div><div class="label">Shape executed</div></div>`;
+ const groups={}; r.forEach(x=>{groups[x.club]??={n:0,solid:0,shapeN:0,shapeWins:0};groups[x.club].n++;if(x.contact==='Solid')groups[x.club].solid++;if(x.calledShape){groups[x.club].shapeN++;if(x.actualShape===x.calledShape)groups[x.club].shapeWins++;}});
+ const ranked=Object.entries(groups).map(([club,v])=>({club,n:v.n,p:pct(v.solid,v.n),shapeN:v.shapeN,shapeP:pct(v.shapeWins,v.shapeN)})).sort((a,b)=>b.p-a.p||b.n-a.n);
+ document.getElementById('clubStats').innerHTML=ranked.map(x=>`<div class="club-row"><span>${x.club} <span class="small">(${x.n})</span></span><strong>${x.p}% solid${x.shapeN?` · ${x.shapeP}% shape`:''}</strong></div>`).join('');
+ const best=ranked[0],worst=[...ranked].sort((a,b)=>a.p-b.p||b.n-a.n)[0];
+ let takeaway=`You made solid contact on ${pct(solid,total)}% of your called shots.`;
+ if(dominant[1]) takeaway+=` Your most common directional miss was ${dominant[0].toLowerCase()}.`;
+ if(shaped.length) takeaway+=` You matched the called shot shape ${pct(shapeWins,shaped.length)}% of the time.`;
+ if(best && worst && best.club!==worst.club) takeaway+=` ${best.club} was strongest today; ${worst.club} needs the most work.`;
+ takeaway+=` One ball. One decision. One swing.`;
+ document.getElementById('takeaway').textContent=takeaway;
+ show('summary');
+}
+document.getElementById('summaryHome').onclick=()=>show('home');
+document.getElementById('playAgain').onclick=()=>start(session.holes.length);
+
+if(localStorage.getItem('rangeLabOnboardedV2')) show('home'); else {renderOnboarding();show('onboarding');}
+</script>
+</body>
+</html>
