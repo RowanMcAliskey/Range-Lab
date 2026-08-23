@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#f7f7f5" />
-<title>Range Lab</title>
+<title>Range Lab V8</title>
 <style>
 :root{
   --bg:#f7f7f5; --card:#ffffff; --text:#111111; --muted:#6d6d70; --line:#deded8;
@@ -23,9 +23,11 @@ h1{font-size:44px;line-height:.98;letter-spacing:-.045em;margin:10px 0 12px}h2{f
 .onboarding{justify-content:center}.onboarding-copy{font-size:31px;line-height:1.28;letter-spacing:-.03em;color:var(--text);font-weight:700;white-space:pre-line}.onboarding-copy.fade{animation:onboardFade .55s ease both}@keyframes onboardFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.onboarding-copy .muted{color:var(--muted);font-weight:600}.dots{display:flex;gap:7px;margin-top:28px}.dot{width:7px;height:7px;border-radius:99px;background:#c9c9c5}.dot.active{background:#111}
 .club-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}.club{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:16px 8px;font-weight:700;min-height:58px}.club.selected{background:#111;color:#fff;border-color:#111}.section-label{margin-top:18px;font-weight:750;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
 .session-header{text-align:center}.hole{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:750}.shot-name{font-size:50px;line-height:.95;letter-spacing:-.055em;font-weight:820;margin:18px 0 5px}.shot-note{font-size:15px;color:var(--muted);min-height:22px}.progress{height:6px;background:#e3e3df;border-radius:99px;overflow:hidden;margin:12px 0 16px}.progress>div{height:100%;background:#111;width:0%;transition:width .25s ease}
-.feedback{margin-top:auto;display:grid;gap:11px}.feedback-group{display:grid;gap:7px}.feedback-label{text-align:center;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:750}.dpad{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-areas:'. long .' 'left . right' '. short .';gap:7px;align-items:center}.dpad .long{grid-area:long}.dpad .left{grid-area:left}.dpad .right{grid-area:right}.dpad .short{grid-area:short}.strike-row,.shape-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.feedback-btn{border:1px solid var(--line);background:var(--card);border-radius:16px;min-height:52px;font-weight:780;font-size:15px}.feedback-btn.selected{background:#111;color:#fff;border-color:#111}.submit-shot{margin-top:0;min-height:54px;padding:15px 18px}.transition{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:30px 10px}.transition-wrap{width:100%;display:flex;flex-direction:column;align-items:center}.transition-text{font-size:38px;line-height:1.14;letter-spacing:-.04em;font-weight:780;white-space:pre-line}.breath-orb{width:86px;height:86px;border-radius:50%;border:2px solid #111;margin:28px 0 22px;animation:breathe 8s ease-in-out infinite}.reset-progress{width:180px;height:4px;border-radius:99px;background:#deded8;overflow:hidden;margin-top:26px}.reset-progress>div{height:100%;width:0;background:#111}.reset-progress.run>div{animation:resetFill 8s linear forwards}@keyframes breathe{0%,100%{transform:scale(.78);opacity:.55}50%{transform:scale(1.18);opacity:1}}@keyframes resetFill{from{width:0}to{width:100%}}
+.feedback{margin-top:auto;display:grid;gap:11px}.feedback-group{display:grid;gap:7px}.feedback-label{text-align:center;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:750}.dpad{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-areas:'. long .' 'left . right' '. short .';gap:7px;align-items:center}.dpad .long{grid-area:long}.dpad .left{grid-area:left}.dpad .right{grid-area:right}.dpad .short{grid-area:short}.strike-row,.shape-row,.trajectory-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.feedback-btn{border:1px solid var(--line);background:var(--card);border-radius:16px;min-height:52px;font-weight:780;font-size:15px}.feedback-btn.selected{background:#111;color:#fff;border-color:#111}.submit-shot{margin-top:0;min-height:54px;padding:15px 18px}.transition{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:30px 10px}.transition-wrap{width:100%;display:flex;flex-direction:column;align-items:center}.transition-text{font-size:38px;line-height:1.14;letter-spacing:-.04em;font-weight:780;white-space:pre-line}.breath-orb{width:86px;height:86px;border-radius:50%;border:2px solid #111;margin:28px 0 22px;animation:breathe 8s ease-in-out infinite}.reset-progress{width:180px;height:4px;border-radius:99px;background:#deded8;overflow:hidden;margin-top:26px}.reset-progress>div{height:100%;width:0;background:#111}.reset-progress.run>div{animation:resetFill 8s linear forwards}@keyframes breathe{0%,100%{transform:scale(.78);opacity:.55}50%{transform:scale(1.18);opacity:1}}@keyframes resetFill{from{width:0}to{width:100%}}
 .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow)}.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:22px 0}.stat .num{font-size:34px;font-weight:820;letter-spacing:-.04em}.stat .label{font-size:13px;color:var(--muted);margin-top:3px}.club-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #ecece8}.club-row:last-child{border-bottom:0}.takeaway{font-size:19px;line-height:1.4;color:var(--text);font-weight:650}.spacer{flex:1}.footer-note{text-align:center;font-size:13px;color:var(--muted);margin-top:14px}
+.driver-flight-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.driver-flight-row .feedback-btn{padding:12px 3px;font-size:12px}
 @media (max-width:380px){h1{font-size:38px}.shot-name{font-size:48px}.club-grid{grid-template-columns:repeat(3,1fr)}.outcome{min-height:64px}}
+.end-session-btn{font-size:12px;white-space:nowrap;padding:8px 10px;min-width:auto}
 </style>
 </head>
 <body>
@@ -67,7 +69,7 @@ h1{font-size:44px;line-height:.98;letter-spacing:-.045em;margin:10px 0 12px}h2{f
   </section>
 
   <section id="shot" class="screen">
-    <div class="topbar"><button class="iconbtn" id="quitBtn">Quit</button><div id="sessionCount" class="eyebrow"></div><span style="width:58px"></span></div>
+    <div class="topbar"><span style="width:58px"></span><div id="sessionCount" class="eyebrow"></div><button class="iconbtn end-session-btn" id="endSessionBtn">End Session</button></div>
     <div class="session-header">
       <div id="holeLabel" class="hole"></div>
       <div id="shotName" class="shot-name"></div>
@@ -75,7 +77,7 @@ h1{font-size:44px;line-height:.98;letter-spacing:-.045em;margin:10px 0 12px}h2{f
     </div>
     <div class="progress"><div id="progressBar"></div></div>
     <div class="feedback">
-      <div class="feedback-group">
+      <div class="feedback-group" id="directionGroup">
         <div class="feedback-label">Result</div>
         <div class="dpad">
           <button class="feedback-btn long" data-result="Long">Long</button>
@@ -84,12 +86,31 @@ h1{font-size:44px;line-height:.98;letter-spacing:-.045em;margin:10px 0 12px}h2{f
           <button class="feedback-btn short" data-result="Short">Short</button>
         </div>
       </div>
-      <div class="feedback-group">
+      <div class="feedback-group" id="ballFlightGroup" style="display:none">
+        <div class="feedback-label">Ball Flight</div>
+        <div class="driver-flight-row">
+          <button class="feedback-btn" data-ball-flight="Slice">Slice</button>
+          <button class="feedback-btn" data-ball-flight="Fade">Fade</button>
+          <button class="feedback-btn" data-ball-flight="Straight">Straight</button>
+          <button class="feedback-btn" data-ball-flight="Draw">Draw</button>
+          <button class="feedback-btn" data-ball-flight="Hook">Hook</button>
+        </div>
+      </div>
+      <div class="feedback-group" id="contactGroup">
         <div class="feedback-label">Contact</div>
         <div class="strike-row">
           <button class="feedback-btn" data-contact="Thin">Thin</button>
           <button class="feedback-btn" data-contact="Solid">Solid</button>
           <button class="feedback-btn" data-contact="Fat">Fat</button>
+        </div>
+      </div>
+
+      <div class="feedback-group" id="trajectoryGroup" style="display:none">
+        <div class="feedback-label">Trajectory</div>
+        <div class="trajectory-row">
+          <button class="feedback-btn" data-trajectory="Low">Low</button>
+          <button class="feedback-btn" data-trajectory="Normal">Normal</button>
+          <button class="feedback-btn" data-trajectory="High">High</button>
         </div>
       </div>
       <div class="feedback-group" id="shapeGroup" style="display:none">
@@ -105,7 +126,7 @@ h1{font-size:44px;line-height:.98;letter-spacing:-.045em;margin:10px 0 12px}h2{f
   </section>
 
   <section id="between" class="screen">
-    <div class="topbar"><button class="iconbtn" id="resetQuitBtn">Quit</button><div class="eyebrow">Range Lab</div><span style="width:58px"></span></div>
+    <div class="topbar"><span style="width:58px"></span><div class="eyebrow">Range Lab</div><button class="iconbtn end-session-btn" id="resetEndSessionBtn">End Session</button></div>
     <div class="transition"><div class="transition-wrap"><div class="eyebrow" id="betweenEyebrow"></div><div class="breath-orb" id="breathOrb"></div><div class="transition-text" id="betweenText">Deep breath.
 Let it go.</div><div class="reset-progress" id="resetProgress"><div></div></div></div></div>
   </section>
@@ -129,7 +150,7 @@ const defaults=["Driver","5 Wood","4 Hybrid","5 Iron","6 Iron","7 Iron","8 Iron"
 let bag = JSON.parse(localStorage.getItem('rangeLabBag')||'null') || defaults;
 let history = JSON.parse(localStorage.getItem('rangeLabHistory')||'[]');
 let session=null;
-let shotFeedback={result:null,contact:null,shape:null};
+let shotFeedback={result:null,contact:null,shape:null,ballFlight:null,trajectory:null};
 const screens=[...document.querySelectorAll('.screen')];
 function show(id){ screens.forEach(s=>s.classList.toggle('active',s.id===id)); window.scrollTo(0,0); }
 
@@ -241,9 +262,17 @@ function startFullBag(n){session=buildFullBagSession(n);renderShot();}
 function current(){const h=session.holes[session.holeIndex]; return {h, shot:h.shots[session.shotIndex]};}
 function renderShot(){
  const {h,shot}=current();
- shotFeedback={result:null,contact:null,shape:null};
+ shotFeedback={result:null,contact:null,shape:null,ballFlight:null,trajectory:null};
  document.querySelectorAll('.feedback-btn').forEach(b=>b.classList.remove('selected'));
- document.getElementById('shapeGroup').style.display=shot.shape?'grid':'none';
+ const cat=category(shot.club);
+ const isDriver=cat==='driver';
+ const isWoodHybrid=cat==='long';
+ const isIronWedge=['mid','short','wedge'].includes(cat);
+ document.getElementById('directionGroup').style.display=isIronWedge?'grid':'none';
+ document.getElementById('ballFlightGroup').style.display=(isDriver||isWoodHybrid)?'grid':'none';
+ document.getElementById('contactGroup').style.display=isDriver?'none':'grid';
+ document.getElementById('trajectoryGroup').style.display=isIronWedge?'grid':'none';
+ document.getElementById('shapeGroup').style.display=(isIronWedge && shot.shape)?'grid':'none';
  document.getElementById('sessionCount').textContent=session.mode==='Full Bag'?`${session.results.length+1} / ${session.totalPlanned}`:`${session.holeIndex+1} / ${session.holes.length}`;
  document.getElementById('holeLabel').textContent=session.mode==='Full Bag'?'Full Bag':`Hole ${h.num} · Par ${h.par}`;
  document.getElementById('shotName').textContent=shot.display;
@@ -257,12 +286,15 @@ document.querySelectorAll('[data-holes]').forEach(b=>b.onclick=()=>start(+b.data
 document.querySelectorAll('[data-result]').forEach(b=>b.onclick=()=>{shotFeedback.result=b.dataset.result;document.querySelectorAll('[data-result]').forEach(x=>x.classList.toggle('selected',x===b));});
 document.querySelectorAll('[data-contact]').forEach(b=>b.onclick=()=>{shotFeedback.contact=b.dataset.contact;document.querySelectorAll('[data-contact]').forEach(x=>x.classList.toggle('selected',x===b));});
 document.querySelectorAll('[data-shape]').forEach(b=>b.onclick=()=>{shotFeedback.shape=b.dataset.shape;document.querySelectorAll('[data-shape]').forEach(x=>x.classList.toggle('selected',x===b));});
+document.querySelectorAll('[data-ball-flight]').forEach(b=>b.onclick=()=>{shotFeedback.ballFlight=b.dataset.ballFlight;document.querySelectorAll('[data-ball-flight]').forEach(x=>x.classList.toggle('selected',x===b));});
+document.querySelectorAll('[data-trajectory]').forEach(b=>b.onclick=()=>{shotFeedback.trajectory=b.dataset.trajectory;document.querySelectorAll('[data-trajectory]').forEach(x=>x.classList.toggle('selected',x===b));});
 document.getElementById('submitShot').onclick=()=>record();
 function record(){
  const {h,shot}=current();
- if(!shotFeedback.result || !shotFeedback.contact){alert('Choose a result and contact.');return;}
- if(shot.shape && !shotFeedback.shape){alert('Choose the shot shape.');return;}
- session.results.push({hole:h.num,par:h.par,club:shot.club,display:shot.display,calledShape:shot.shape,result:shotFeedback.result,contact:shotFeedback.contact,actualShape:shotFeedback.shape});
+ const cat=category(shot.club);
+ const isIronWedge=['mid','short','wedge'].includes(cat);
+ // Feedback is intentionally optional. The golfer can log as much or as little as useful and move on.
+ session.results.push({hole:h.num,par:h.par,club:shot.club,display:shot.display,calledShape:shot.shape,result:isIronWedge?shotFeedback.result:null,contact:cat==='driver'?null:shotFeedback.contact,actualShape:shotFeedback.shape,ballFlight:['driver','long'].includes(cat)?shotFeedback.ballFlight:null,trajectory:isIronWedge?shotFeedback.trajectory:null});
  const isLastShot=session.shotIndex===h.shots.length-1;
  const isLastHole=session.holeIndex===session.holes.length-1;
  if(isLastShot && isLastHole){showReset(true,true);return;}
@@ -304,35 +336,46 @@ function quitSession(){
   clearTimeout(resetTimer);
   resetTimer=null;
   session=null;
-  shotFeedback={result:null,contact:null,shape:null};
+  shotFeedback={result:null,contact:null,shape:null,ballFlight:null,trajectory:null};
   const picker=document.getElementById('ballPicker');
   if(picker) picker.style.display='none';
   show('home');
 }
-document.getElementById('quitBtn').onclick=quitSession;
-document.getElementById('resetQuitBtn').onclick=quitSession;
+function endSessionEarly(){
+  if(!session) return;
+  clearTimeout(resetTimer);
+  resetTimer=null;
+  const picker=document.getElementById('ballPicker');
+  if(picker) picker.style.display='none';
+  // Summarize and save only shots already completed. The current unsubmitted shot is ignored.
+  renderSummary();
+}
+document.getElementById('endSessionBtn').onclick=endSessionEarly;
+document.getElementById('resetEndSessionBtn').onclick=endSessionEarly;
 function pct(n,d){return d?Math.round(n/d*100):0}
 function renderSummary(fromHistory=false){
  const r=session.results,total=r.length;
- const solid=r.filter(x=>x.contact==='Solid').length;
+ const contactShots=r.filter(x=>x.contact); const solid=contactShots.filter(x=>x.contact==='Solid').length;
  const dir={Left:0,Right:0,Short:0,Long:0}; r.forEach(x=>dir[x.result]=(dir[x.result]||0)+1);
- const dominant=Object.entries(dir).sort((a,b)=>b[1]-a[1])[0];
+ const dominant=Object.entries(dir).sort((a,b)=>b[1]-a[1])[0]; const directionalShots=r.filter(x=>x.result).length;
  const shaped=r.filter(x=>x.calledShape);
- const shapeWins=shaped.filter(x=>x.actualShape===x.calledShape).length;
+ const shapeAnswered=shaped.filter(x=>x.actualShape); const shapeWins=shapeAnswered.filter(x=>x.actualShape===x.calledShape).length;
  document.getElementById('summaryTitle').textContent=session.mode==='Full Bag'?`${session.balls} balls complete.`:`${session.holes.length} holes complete.`;
  document.getElementById('summarySub').textContent=`${total} called shots. No do-overs.`;
  document.getElementById('statsGrid').innerHTML=`
  <div class="card stat"><div class="num">${total}</div><div class="label">Total shots</div></div>
- <div class="card stat"><div class="num">${pct(solid,total)}%</div><div class="label">Solid contact</div></div>
+ <div class="card stat"><div class="num">${contactShots.length?pct(solid,contactShots.length)+'%':'—'}</div><div class="label">Solid contact</div></div>
  <div class="card stat"><div class="num">${dominant[1]?dominant[0]:'—'}</div><div class="label">Primary miss</div></div>
- <div class="card stat"><div class="num">${shaped.length?pct(shapeWins,shaped.length)+'%':'—'}</div><div class="label">Shape executed</div></div>`;
- const groups={}; r.forEach(x=>{groups[x.club]??={n:0,solid:0,shapeN:0,shapeWins:0};groups[x.club].n++;if(x.contact==='Solid')groups[x.club].solid++;if(x.calledShape){groups[x.club].shapeN++;if(x.actualShape===x.calledShape)groups[x.club].shapeWins++;}});
- const ranked=Object.entries(groups).map(([club,v])=>({club,n:v.n,p:pct(v.solid,v.n),shapeN:v.shapeN,shapeP:pct(v.shapeWins,v.shapeN)})).sort((a,b)=>b.p-a.p||b.n-a.n);
- document.getElementById('clubStats').innerHTML=ranked.map(x=>`<div class="club-row"><span>${x.club} <span class="small">(${x.n})</span></span><strong>${x.p}% solid${x.shapeN?` · ${x.shapeP}% shape`:''}</strong></div>`).join('');
- const best=ranked[0],worst=[...ranked].sort((a,b)=>a.p-b.p||b.n-a.n)[0];
- let takeaway=`You made solid contact on ${pct(solid,total)}% of your called shots.`;
+ <div class="card stat"><div class="num">${shapeAnswered.length?pct(shapeWins,shapeAnswered.length)+'%':'—'}</div><div class="label">Shape executed</div></div>`;
+ const groups={}; r.forEach(x=>{groups[x.club]??={n:0,contactN:0,solid:0,shapeN:0,shapeWins:0};groups[x.club].n++;if(x.contact){groups[x.club].contactN++;if(x.contact==='Solid')groups[x.club].solid++;}if(x.calledShape&&x.actualShape){groups[x.club].shapeN++;if(x.actualShape===x.calledShape)groups[x.club].shapeWins++;}});
+ const ranked=Object.entries(groups).map(([club,v])=>({club,n:v.n,contactN:v.contactN,p:v.contactN?pct(v.solid,v.contactN):null,shapeN:v.shapeN,shapeP:pct(v.shapeWins,v.shapeN)})).sort((a,b)=>(b.p??-1)-(a.p??-1)||b.n-a.n);
+ document.getElementById('clubStats').innerHTML=ranked.map(x=>`<div class="club-row"><span>${x.club} <span class="small">(${x.n})</span></span><strong>${x.contactN?x.p+'% solid':'—'}${x.shapeN?` · ${x.shapeP}% shape`:''}</strong></div>`).join('');
+ const rated=ranked.filter(x=>x.contactN); const best=rated[0],worst=[...rated].sort((a,b)=>a.p-b.p||b.n-a.n)[0];
+ let takeaway=contactShots.length?`You made solid contact on ${pct(solid,contactShots.length)}% of the shots where you logged contact.`:`You kept the session moving without over-logging every swing.`;
  if(dominant[1]) takeaway+=` Your most common directional miss was ${dominant[0].toLowerCase()}.`;
- if(shaped.length) takeaway+=` You matched the called shot shape ${pct(shapeWins,shaped.length)}% of the time.`;
+ if(shapeAnswered.length) takeaway+=` You matched the called shot shape ${pct(shapeWins,shapeAnswered.length)}% of the times you logged shape.`;
+ const flightShots=r.filter(x=>x.ballFlight);
+ if(flightShots.length){const flights={};flightShots.forEach(x=>flights[x.ballFlight]=(flights[x.ballFlight]||0)+1);const topFlight=Object.entries(flights).sort((a,b)=>b[1]-a[1])[0];takeaway+=` Your most common logged wood/hybrid flight was ${topFlight[0].toLowerCase()}.`;}
  if(best && worst && best.club!==worst.club) takeaway+=` ${best.club} was strongest today; ${worst.club} needs the most work.`;
  takeaway+=` One ball. One decision. One swing.`;
  document.getElementById('takeaway').textContent=takeaway;
@@ -349,11 +392,11 @@ function renderHistory(){
  const wrap=document.getElementById('historyList');
  if(!history.length){wrap.innerHTML='<div class="history-empty"><h2>No sessions yet.</h2><p>Finish a Range Lab session and your analytics will appear here.</p></div>';return;}
  wrap.innerHTML=history.map((x,i)=>{
-   const total=x.results.length,solid=x.results.filter(r=>r.contact==='Solid').length;
+   const total=x.results.length,contact=x.results.filter(r=>r.contact),solid=contact.filter(r=>r.contact==='Solid').length;
    const shaped=x.results.filter(r=>r.calledShape),wins=shaped.filter(r=>r.actualShape===r.calledShape).length;
    const date=new Date(x.date).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
    const label=x.mode==='Full Bag'?`Full Bag · ${x.balls} balls`:`Play ${x.holes} Holes`;
-   return `<button class="history-item" data-history="${i}"><div class="history-top"><span class="history-title">${label}</span><span class="small">${date}</span></div><div class="history-meta">${total} shots · ${pct(solid,total)}% solid${shaped.length?` · ${pct(wins,shaped.length)}% shape`:''}</div></button>`;
+   return `<button class="history-item" data-history="${i}"><div class="history-top"><span class="history-title">${label}</span><span class="small">${date}</span></div><div class="history-meta">${total} shots · ${contact.length?pct(solid,contact.length)+'% solid':'contact —'}${shaped.length?` · ${pct(wins,shaped.length)}% shape`:''}</div></button>`;
  }).join('');
  wrap.querySelectorAll('[data-history]').forEach(b=>b.onclick=()=>openHistory(+b.dataset.history));
 }
