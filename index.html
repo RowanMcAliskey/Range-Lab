@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#f7f7f5" />
-<title>Range Lab V9</title>
+<title>Range Lab V10</title>
 <style>
 :root{
   --bg:#f7f7f5; --card:#ffffff; --text:#111111; --muted:#6d6d70; --line:#deded8;
@@ -50,6 +50,21 @@ h1{font-size:44px;line-height:.98;letter-spacing:-.045em;margin:10px 0 12px}h2{f
   .feedback-group{gap:7px}
 }
 
+
+.longitudinal{margin-bottom:18px}
+.longitudinal-head{margin-bottom:14px}
+.longitudinal-title{font-size:28px;line-height:1.05;font-weight:850;letter-spacing:-.035em;margin:4px 0 7px}
+.longitudinal-sub{font-size:14px;color:var(--muted);line-height:1.45}
+.long-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+.long-stat{padding:15px 10px;text-align:center}
+.long-stat .num{font-size:25px;font-weight:850;letter-spacing:-.03em}
+.long-stat .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.trend-card{padding:18px;margin-top:10px}
+.trend-note{font-size:13px;line-height:1.45;color:var(--muted);margin-top:10px}
+.sample-pill{display:inline-flex;align-items:center;padding:4px 8px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap}
+.history-divider{height:1px;background:var(--line);margin:22px 0 18px}
+@media(max-width:360px){.long-summary{gap:7px}.long-stat{padding:12px 5px}.long-stat .num{font-size:22px}}
+
 </style>
 </head>
 <body>
@@ -87,6 +102,9 @@ h1{font-size:44px;line-height:.98;letter-spacing:-.045em;margin:10px 0 12px}h2{f
   <section id="history" class="screen">
     <div class="topbar"><button class="iconbtn" id="historyBack">Back</button><div class="eyebrow">Past Sessions</div><span style="width:58px"></span></div>
     <h2>Your range sessions.</h2><p>Tap a session to reopen the analytics.</p>
+    <div id="longitudinalAnalytics" class="longitudinal"></div>
+    <div class="history-divider"></div>
+    <div class="eyebrow" style="margin-bottom:10px">Past Sessions</div>
     <div id="historyList" class="history-list"></div>
   </section>
 
@@ -318,7 +336,7 @@ function renderShot(){
  document.getElementById('wideShapeGroup').style.display=(isDriver||isWoodHybrid)?'grid':'none';
  document.getElementById('contactGroup').style.display=(isWoodHybrid||isIronWedge)?'grid':'none';
  document.getElementById('driverStrikeGroup').style.display=isDriver?'grid':'none';
- document.getElementById('ballFlightGroup').style.display=(isDriver||isIronWedge)?'grid':'none';
+ document.getElementById('ballFlightGroup').style.display=(isDriver||isWoodHybrid||isIronWedge)?'grid':'none';
  document.getElementById('shapeGroup').style.display=(isIronWedge && shot.shape)?'grid':'none';
 
  document.getElementById('sessionCount').textContent=session.mode==='Full Bag'?`${session.results.length+1} / ${session.totalPlanned}`:`${session.holeIndex+1} / ${session.holes.length}`;
@@ -370,7 +388,7 @@ function record(){
    result:isIronWedge ? shotFeedback.result : null,
    contact:(isWoodHybrid||isIronWedge) ? shotFeedback.contact : null,
    driverStrike:isDriver ? shotFeedback.driverStrike : null,
-   ballFlight:(isDriver||isIronWedge) ? shotFeedback.ballFlight : null
+   ballFlight:(isDriver||isWoodHybrid||isIronWedge) ? shotFeedback.ballFlight : null
  });
 
  const isLastShot=session.shotIndex===h.shots.length-1;
@@ -533,6 +551,7 @@ function groupCard(name,rows){
  } else if(name==='Woods & Hybrids'){
    metrics.push(contactText(rows));
    metrics.push(observationText(rows,'actualShape','Shape'));
+   metrics.push(observationText(rows,'ballFlight','Ball flight'));
  } else {
    metrics.push(contactText(rows));
    metrics.push(directionText(rows));
@@ -591,6 +610,7 @@ function buildTakeaway(groups){
  addDirectionInsight(wedges,'wedges');
  addFlightInsight(wedges,'wedge');
  addContactInsight(long,'woods and hybrids');
+ addFlightInsight(long,'woods and hybrids');
 
  const driverShape=driver.filter(x=>x.actualShape);
  if(driverShape.length>=3){
@@ -665,6 +685,181 @@ function renderSummary(fromHistory=false){
 document.getElementById('summaryHome').onclick=()=>show('home');
 document.getElementById('playAgain').onclick=()=>session.mode==='Full Bag'?startFullBag(session.balls):start(session.holes.length);
 
+
+function allHistoricalResults(){
+ const rows=[];
+ history.forEach((s,sessionIndex)=>{
+   const results=Array.isArray(s.results)?s.results:[];
+   results.forEach(r=>{
+     const row=normalizeStoredResult(r);
+     rows.push({...row,sessionDate:s.date||null,sessionId:s.id||sessionIndex});
+   });
+ });
+ return rows;
+}
+function uniqueHistoricalSessions(rows){
+ return new Set(rows.map(r=>r.sessionId)).size;
+}
+function longMetric(rows,key,label){
+ const logged=rows.filter(r=>r[key]);
+ if(!logged.length) return {label,value:'Not logged',detail:'No logged observations yet.',n:0,strong:false};
+ const counts=countValues(logged,key);
+ const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+ const top=sorted[0];
+ const tied=sorted.length>1 && sorted[1][1]===top[1];
+
+ if(logged.length<5){
+   const parts=sorted.map(([v,n])=>`${n} ${v}`).join(' · ');
+   return {label,value:'Building sample',detail:parts,n:logged.length,strong:false};
+ }
+ if(tied){
+   return {label,value:'Mixed',detail:`${logged.length} logged observations`,n:logged.length,strong:false};
+ }
+ const share=pct(top[1],logged.length);
+ const strong=logged.length>=8 && share>=50;
+ return {
+   label,
+   value:strong?top[0]:'Mixed',
+   detail:strong?`${top[1]} of ${logged.length} logged — ${share}%`:`${logged.length} logged observations`,
+   n:logged.length,
+   strong
+ };
+}
+function longContactMetric(rows){
+ const logged=rows.filter(r=>r.contact);
+ if(!logged.length) return {label:'Contact',value:'Not logged',detail:'No logged strikes yet.',n:0,strong:false};
+ const c=countValues(logged,'contact');
+ const solid=c.Solid||0, thin=c.Thin||0, fat=c.Fat||0;
+
+ if(logged.length<5){
+   const parts=['Solid','Thin','Fat'].filter(k=>c[k]).map(k=>`${c[k]} ${k}`).join(' · ');
+   return {label:'Contact',value:'Building sample',detail:parts,n:logged.length,strong:false};
+ }
+
+ const solidPct=pct(solid,logged.length);
+ if(logged.length>=8 && solidPct>=70){
+   return {label:'Contact',value:'Consistently solid',detail:`${solid} of ${logged.length} — ${solidPct}%`,n:logged.length,strong:true};
+ }
+ if(logged.length>=8 && thin>solid && thin>fat){
+   return {label:'Contact',value:'Thin tendency',detail:`${thin} of ${logged.length} logged strikes`,n:logged.length,strong:true};
+ }
+ if(logged.length>=8 && fat>solid && fat>thin){
+   return {label:'Contact',value:'Fat tendency',detail:`${fat} of ${logged.length} logged strikes`,n:logged.length,strong:true};
+ }
+ return {label:'Contact',value:'Mixed',detail:`${solid} of ${logged.length} solid — ${solidPct}%`,n:logged.length,strong:false};
+}
+function longCalledShapeMetric(rows){
+ const called=rows.filter(r=>r.calledShape);
+ const logged=called.filter(r=>r.actualShape);
+ if(!called.length) return null;
+ if(!logged.length) return {label:'Called shapes',value:'Not logged',detail:`${called.length} called`,n:0,strong:false};
+ const wins=logged.filter(r=>r.calledShape===r.actualShape).length;
+ if(logged.length<5) return {label:'Called shapes',value:'Building sample',detail:`${wins} of ${logged.length} matched`,n:logged.length,strong:false};
+ const p=pct(wins,logged.length);
+ return {label:'Called shapes',value:`${p}% executed`,detail:`${wins} of ${logged.length} logged`,n:logged.length,strong:logged.length>=8};
+}
+function longFamilyCard(name,rows){
+ const sessions=uniqueHistoricalSessions(rows);
+ const metrics=[];
+
+ if(name==='Driver'){
+   metrics.push(longMetric(rows,'actualShape','Shape'));
+   metrics.push(longMetric(rows,'driverStrike','Strike'));
+   metrics.push(longMetric(rows,'ballFlight','Ball flight'));
+ } else if(name==='Woods & Hybrids'){
+   metrics.push(longContactMetric(rows));
+   metrics.push(longMetric(rows,'actualShape','Shape'));
+   metrics.push(longMetric(rows,'ballFlight','Ball flight'));
+ } else {
+   metrics.push(longContactMetric(rows));
+   metrics.push(longMetric(rows,'result','Result'));
+   metrics.push(longMetric(rows,'ballFlight','Ball flight'));
+   if(name==='Irons'){
+     const called=longCalledShapeMetric(rows);
+     if(called) metrics.push(called);
+   }
+ }
+
+ return `<div class="card trend-card">
+   <div class="group-head">
+     <div>
+       <div class="group-title">${name}</div>
+       <div class="small">${rows.length} ${rows.length===1?'shot':'shots'} across ${sessions} ${sessions===1?'session':'sessions'}</div>
+     </div>
+     <span class="sample-pill">${rows.length<8?'Building sample':'Trend view'}</span>
+   </div>
+   ${metrics.map(m=>`<div class="metric-line">
+      <span>${m.label}</span>
+      <strong>${m.value}<div class="small" style="font-weight:500;margin-top:3px">${m.detail}</div></strong>
+   </div>`).join('')}
+ </div>`;
+}
+function buildLongitudinalTakeaway(groups,totalSessions,totalShots){
+ const insights=[];
+
+ function addLongContact(rows,label){
+   const m=longContactMetric(rows);
+   if(m.strong) insights.push(`${label}: ${m.value.toLowerCase()}.`);
+ }
+ function addLongMetric(rows,key,label,prefix){
+   const m=longMetric(rows,key,label);
+   if(m.strong) insights.push(`${prefix} ${m.value.toLowerCase()}.`);
+ }
+
+ addLongMetric(groups.Driver||[],'actualShape','Shape','Driver shape tends');
+ addLongMetric(groups.Driver||[],'driverStrike','Strike','Driver strike tends toward the');
+ addLongMetric(groups.Driver||[],'ballFlight','Ball flight','Driver flight tends');
+ addLongContact(groups['Woods & Hybrids']||[],'Woods and hybrids');
+ addLongMetric(groups['Woods & Hybrids']||[],'actualShape','Shape','Woods and hybrid shape tends');
+ addLongMetric(groups['Woods & Hybrids']||[],'ballFlight','Ball flight','Woods and hybrid flight tends');
+ addLongContact(groups.Irons||[],'Irons');
+ addLongMetric(groups.Irons||[],'result','Result','Iron misses tend');
+ addLongMetric(groups.Irons||[],'ballFlight','Ball flight','Iron flight tends');
+ addLongContact(groups.Wedges||[],'Wedges');
+ addLongMetric(groups.Wedges||[],'result','Result','Wedge misses tend');
+ addLongMetric(groups.Wedges||[],'ballFlight','Ball flight','Wedge flight tends');
+
+ if(insights.length) return insights.slice(0,3).join(' ');
+ if(totalShots<20) return `You have ${totalShots} saved ${totalShots===1?'shot':'shots'} across ${totalSessions} ${totalSessions===1?'session':'sessions'}. Keep logging feedback and Range Lab will begin separating real tendencies from one-day results.`;
+ return 'Your history is growing, but no single tendency is strong enough yet to call a pattern. Keep logging the feedback that matters to you.';
+}
+function renderLongitudinalAnalytics(){
+ const wrap=document.getElementById('longitudinalAnalytics');
+ if(!wrap) return;
+
+ const rows=allHistoricalResults();
+ const sessions=history.length;
+ if(!rows.length){
+   wrap.innerHTML=`<div class="longitudinal-head">
+      <div class="eyebrow">Your Patterns</div>
+      <div class="longitudinal-title">No history yet.</div>
+      <div class="longitudinal-sub">Complete sessions and Range Lab will combine your saved shots to identify patterns over time.</div>
+   </div>`;
+   return;
+ }
+
+ const groups=groupRows(rows);
+ const active=Object.entries(groups).filter(([,r])=>r.length);
+ const logged=rows.filter(r=>r.result||r.contact||r.actualShape||r.driverStrike||r.ballFlight).length;
+
+ wrap.innerHTML=`
+   <div class="longitudinal-head">
+     <div class="eyebrow">Your Patterns</div>
+     <div class="longitudinal-title">Practice over time.</div>
+     <div class="longitudinal-sub">These stats combine your saved Range Lab sessions. Small samples stay descriptive; stronger tendencies appear as more feedback accumulates.</div>
+   </div>
+   <div class="long-summary">
+     <div class="card long-stat"><div class="num">${sessions}</div><div class="label">Sessions</div></div>
+     <div class="card long-stat"><div class="num">${rows.length}</div><div class="label">Shots</div></div>
+     <div class="card long-stat"><div class="num">${logged}</div><div class="label">Logged</div></div>
+   </div>
+   ${active.map(([name,r])=>longFamilyCard(name,r)).join('')}
+   <div class="card trend-card">
+     <div class="eyebrow">Long-Term Takeaway</div>
+     <div class="takeaway" style="margin-top:10px">${buildLongitudinalTakeaway(groups,sessions,rows.length)}</div>
+   </div>`;
+}
+
 function normalizeStoredResult(x){
  const row={...x};
  row.family=row.family || familyForClub(row.club);
@@ -679,6 +874,7 @@ function normalizeStoredResult(x){
  return row;
 }
 function renderHistory(){
+ renderLongitudinalAnalytics();
  const wrap=document.getElementById('historyList');
  if(!history.length){
    wrap.innerHTML='<div class="history-empty"><h2>No sessions yet.</h2><p>Finish a Range Lab session and your analytics will appear here.</p></div>';
