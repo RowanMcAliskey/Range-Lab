@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#f7f7f5" />
-<title>Range Lab V8</title>
+<title>Range Lab V9</title>
 <style>
 :root{
   --bg:#f7f7f5; --card:#ffffff; --text:#111111; --muted:#6d6d70; --line:#deded8;
@@ -28,6 +28,28 @@ h1{font-size:44px;line-height:.98;letter-spacing:-.045em;margin:10px 0 12px}h2{f
 .driver-flight-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.driver-flight-row .feedback-btn{padding:12px 3px;font-size:12px}
 @media (max-width:380px){h1{font-size:38px}.shot-name{font-size:48px}.club-grid{grid-template-columns:repeat(3,1fr)}.outcome{min-height:64px}}
 .end-session-btn{font-size:12px;white-space:nowrap;padding:8px 10px;min-width:auto}
+
+.feedback-note{font-size:12px;color:var(--muted);text-align:center;margin-top:-2px}
+.five-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.three-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.two-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.group-stats{display:grid;gap:12px}
+.group-card{padding:20px}
+.group-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+.group-title{font-size:20px;font-weight:800}
+.group-count{font-size:13px;color:var(--muted);white-space:nowrap}
+.metric-line{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+.metric-line span:first-child{color:var(--muted)}
+.metric-line strong{text-align:right}
+.countdown{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}
+.reset-actions{display:grid;gap:10px;margin-top:20px;width:100%}
+.reset-next{width:100%}
+@media(max-width:390px){
+  .five-row{gap:5px}
+  .five-row .feedback-btn{font-size:13px;padding-left:3px;padding-right:3px}
+  .feedback-group{gap:7px}
+}
+
 </style>
 </head>
 <body>
@@ -86,55 +108,77 @@ h1{font-size:44px;line-height:.98;letter-spacing:-.045em;margin:10px 0 12px}h2{f
           <button class="feedback-btn short" data-result="Short">Short</button>
         </div>
       </div>
-      <div class="feedback-group" id="ballFlightGroup" style="display:none">
-        <div class="feedback-label">Ball Flight</div>
-        <div class="driver-flight-row">
-          <button class="feedback-btn" data-ball-flight="Slice">Slice</button>
-          <button class="feedback-btn" data-ball-flight="Fade">Fade</button>
-          <button class="feedback-btn" data-ball-flight="Straight">Straight</button>
-          <button class="feedback-btn" data-ball-flight="Draw">Draw</button>
-          <button class="feedback-btn" data-ball-flight="Hook">Hook</button>
+
+      <div class="feedback-group" id="wideShapeGroup" style="display:none">
+        <div class="feedback-label">Shot Shape</div>
+        <div class="five-row">
+          <button class="feedback-btn" data-wide-shape="Slice">Slice</button>
+          <button class="feedback-btn" data-wide-shape="Fade">Fade</button>
+          <button class="feedback-btn" data-wide-shape="Straight">Straight</button>
+          <button class="feedback-btn" data-wide-shape="Draw">Draw</button>
+          <button class="feedback-btn" data-wide-shape="Hook">Hook</button>
         </div>
       </div>
+
       <div class="feedback-group" id="contactGroup">
         <div class="feedback-label">Contact</div>
-        <div class="strike-row">
+        <div class="three-row">
           <button class="feedback-btn" data-contact="Thin">Thin</button>
           <button class="feedback-btn" data-contact="Solid">Solid</button>
           <button class="feedback-btn" data-contact="Fat">Fat</button>
         </div>
       </div>
 
-      <div class="feedback-group" id="trajectoryGroup" style="display:none">
-        <div class="feedback-label">Trajectory</div>
-        <div class="trajectory-row">
-          <button class="feedback-btn" data-trajectory="Low">Low</button>
-          <button class="feedback-btn" data-trajectory="Normal">Normal</button>
-          <button class="feedback-btn" data-trajectory="High">High</button>
+      <div class="feedback-group" id="driverStrikeGroup" style="display:none">
+        <div class="feedback-label">Strike</div>
+        <div class="three-row">
+          <button class="feedback-btn" data-driver-strike="Toe">Toe</button>
+          <button class="feedback-btn" data-driver-strike="Center">Center</button>
+          <button class="feedback-btn" data-driver-strike="Heel">Heel</button>
         </div>
       </div>
+
+      <div class="feedback-group" id="ballFlightGroup" style="display:none">
+        <div class="feedback-label">Ball Flight</div>
+        <div class="two-row">
+          <button class="feedback-btn" data-ball-flight="Low">Low</button>
+          <button class="feedback-btn" data-ball-flight="High">High</button>
+        </div>
+      </div>
+
       <div class="feedback-group" id="shapeGroup" style="display:none">
         <div class="feedback-label">Shot Shape</div>
-        <div class="shape-row">
+        <div class="three-row">
           <button class="feedback-btn" data-shape="Fade">Fade</button>
           <button class="feedback-btn" data-shape="Straight">Straight</button>
           <button class="feedback-btn" data-shape="Draw">Draw</button>
         </div>
       </div>
+
+      <div class="feedback-note">Feedback is optional. Log what matters, then move on.</div>
       <button class="btn submit-shot" id="submitShot">Next Shot</button>
     </div>
   </section>
 
   <section id="between" class="screen">
-    <div class="topbar"><span style="width:58px"></span><div class="eyebrow">Range Lab</div><button class="iconbtn end-session-btn" id="resetEndSessionBtn">End Session</button></div>
-    <div class="transition"><div class="transition-wrap"><div class="eyebrow" id="betweenEyebrow"></div><div class="breath-orb" id="breathOrb"></div><div class="transition-text" id="betweenText">Deep breath.
-Let it go.</div><div class="reset-progress" id="resetProgress"><div></div></div></div></div>
+    <div class="topbar"><span style="width:88px"></span><div class="eyebrow">Range Lab</div><button class="iconbtn end-session-btn" id="resetEndSessionBtn">End Session</button></div>
+    <div class="transition">
+      <div class="transition-wrap">
+        <div class="eyebrow" id="betweenEyebrow"></div>
+        <div class="breath-orb" id="breathOrb"></div>
+        <div class="transition-text" id="betweenText">Deep breath.
+Let it go.</div>
+        <div class="reset-progress" id="resetProgress"><div></div></div>
+        <div class="countdown" id="resetCountdown">Next shot in 8s</div>
+        <div class="reset-actions"><button class="btn reset-next" id="resetNextBtn">Next Shot →</button></div>
+      </div>
+    </div>
   </section>
 
   <section id="summary" class="screen">
     <div class="eyebrow">Session Complete</div><h1 id="summaryTitle">9 holes.</h1><p id="summarySub"></p>
     <div class="stats-grid" id="statsGrid"></div>
-    <div class="card"><div class="eyebrow">By Club</div><div id="clubStats"></div></div>
+    <div class="group-stats" id="groupStats"></div>
     <div class="card" style="margin-top:12px"><div class="eyebrow">Today's Takeaway</div><div class="takeaway" id="takeaway" style="margin-top:10px"></div></div>
     <div class="stack"><button class="btn" id="playAgain">Practice Again</button><button class="btn secondary" id="summaryHome">Home</button></div>
   </section>
@@ -150,7 +194,7 @@ const defaults=["Driver","5 Wood","4 Hybrid","5 Iron","6 Iron","7 Iron","8 Iron"
 let bag = JSON.parse(localStorage.getItem('rangeLabBag')||'null') || defaults;
 let history = JSON.parse(localStorage.getItem('rangeLabHistory')||'[]');
 let session=null;
-let shotFeedback={result:null,contact:null,shape:null,ballFlight:null,trajectory:null};
+let shotFeedback={result:null,contact:null,shape:null,wideShape:null,ballFlight:null,driverStrike:null};
 const screens=[...document.querySelectorAll('.screen')];
 function show(id){ screens.forEach(s=>s.classList.toggle('active',s.id===id)); window.scrollTo(0,0); }
 
@@ -262,39 +306,73 @@ function startFullBag(n){session=buildFullBagSession(n);renderShot();}
 function current(){const h=session.holes[session.holeIndex]; return {h, shot:h.shots[session.shotIndex]};}
 function renderShot(){
  const {h,shot}=current();
- shotFeedback={result:null,contact:null,shape:null,ballFlight:null,trajectory:null};
+ shotFeedback={result:null,contact:null,shape:null,wideShape:null,ballFlight:null,driverStrike:null};
  document.querySelectorAll('.feedback-btn').forEach(b=>b.classList.remove('selected'));
+
  const cat=category(shot.club);
  const isDriver=cat==='driver';
  const isWoodHybrid=cat==='long';
  const isIronWedge=['mid','short','wedge'].includes(cat);
+
  document.getElementById('directionGroup').style.display=isIronWedge?'grid':'none';
- document.getElementById('ballFlightGroup').style.display=(isDriver||isWoodHybrid)?'grid':'none';
- document.getElementById('contactGroup').style.display=isDriver?'none':'grid';
- document.getElementById('trajectoryGroup').style.display=isIronWedge?'grid':'none';
+ document.getElementById('wideShapeGroup').style.display=(isDriver||isWoodHybrid)?'grid':'none';
+ document.getElementById('contactGroup').style.display=(isWoodHybrid||isIronWedge)?'grid':'none';
+ document.getElementById('driverStrikeGroup').style.display=isDriver?'grid':'none';
+ document.getElementById('ballFlightGroup').style.display=(isDriver||isIronWedge)?'grid':'none';
  document.getElementById('shapeGroup').style.display=(isIronWedge && shot.shape)?'grid':'none';
+
  document.getElementById('sessionCount').textContent=session.mode==='Full Bag'?`${session.results.length+1} / ${session.totalPlanned}`:`${session.holeIndex+1} / ${session.holes.length}`;
  document.getElementById('holeLabel').textContent=session.mode==='Full Bag'?'Full Bag':`Hole ${h.num} · Par ${h.par}`;
  document.getElementById('shotName').textContent=shot.display;
  document.getElementById('shotNote').textContent='Pick a target. Commit to the shot.';
- const done=session.results.length; document.getElementById('progressBar').style.width=`${(done/session.totalPlanned)*100}%`;
+ const done=session.results.length;
+ document.getElementById('progressBar').style.width=`${Math.min(100,(done/session.totalPlanned)*100)}%`;
  show('shot');
 }
 function start(n){session=buildSession(n);renderShot();}
 document.querySelectorAll('[data-holes]').forEach(b=>b.onclick=()=>start(+b.dataset.holes));
 
-document.querySelectorAll('[data-result]').forEach(b=>b.onclick=()=>{shotFeedback.result=b.dataset.result;document.querySelectorAll('[data-result]').forEach(x=>x.classList.toggle('selected',x===b));});
-document.querySelectorAll('[data-contact]').forEach(b=>b.onclick=()=>{shotFeedback.contact=b.dataset.contact;document.querySelectorAll('[data-contact]').forEach(x=>x.classList.toggle('selected',x===b));});
-document.querySelectorAll('[data-shape]').forEach(b=>b.onclick=()=>{shotFeedback.shape=b.dataset.shape;document.querySelectorAll('[data-shape]').forEach(x=>x.classList.toggle('selected',x===b));});
-document.querySelectorAll('[data-ball-flight]').forEach(b=>b.onclick=()=>{shotFeedback.ballFlight=b.dataset.ballFlight;document.querySelectorAll('[data-ball-flight]').forEach(x=>x.classList.toggle('selected',x===b));});
-document.querySelectorAll('[data-trajectory]').forEach(b=>b.onclick=()=>{shotFeedback.trajectory=b.dataset.trajectory;document.querySelectorAll('[data-trajectory]').forEach(x=>x.classList.toggle('selected',x===b));});
+function bindExclusive(selector,key,dataKey){
+ document.querySelectorAll(selector).forEach(b=>b.onclick=()=>{
+   shotFeedback[key]=b.dataset[dataKey];
+   document.querySelectorAll(selector).forEach(x=>x.classList.toggle('selected',x===b));
+ });
+}
+bindExclusive('[data-result]','result','result');
+bindExclusive('[data-contact]','contact','contact');
+bindExclusive('[data-shape]','shape','shape');
+bindExclusive('[data-wide-shape]','wideShape','wideShape');
+bindExclusive('[data-ball-flight]','ballFlight','ballFlight');
+bindExclusive('[data-driver-strike]','driverStrike','driverStrike');
 document.getElementById('submitShot').onclick=()=>record();
+function familyForClub(club){
+ const cat=category(club);
+ if(cat==='driver') return 'Driver';
+ if(cat==='long') return 'Woods & Hybrids';
+ if(cat==='wedge') return 'Wedges';
+ return 'Irons';
+}
 function record(){
  const {h,shot}=current();
  const cat=category(shot.club);
+ const isDriver=cat==='driver';
+ const isWoodHybrid=cat==='long';
  const isIronWedge=['mid','short','wedge'].includes(cat);
- // Feedback is intentionally optional. The golfer can log as much or as little as useful and move on.
- session.results.push({hole:h.num,par:h.par,club:shot.club,display:shot.display,calledShape:shot.shape,result:isIronWedge?shotFeedback.result:null,contact:cat==='driver'?null:shotFeedback.contact,actualShape:shotFeedback.shape,ballFlight:['driver','long'].includes(cat)?shotFeedback.ballFlight:null,trajectory:isIronWedge?shotFeedback.trajectory:null});
+
+ session.results.push({
+   hole:h.num,
+   par:h.par,
+   club:shot.club,
+   family:familyForClub(shot.club),
+   display:shot.display,
+   calledShape:shot.shape || null,
+   actualShape:isIronWedge ? shotFeedback.shape : ((isDriver||isWoodHybrid) ? shotFeedback.wideShape : null),
+   result:isIronWedge ? shotFeedback.result : null,
+   contact:(isWoodHybrid||isIronWedge) ? shotFeedback.contact : null,
+   driverStrike:isDriver ? shotFeedback.driverStrike : null,
+   ballFlight:(isDriver||isIronWedge) ? shotFeedback.ballFlight : null
+ });
+
  const isLastShot=session.shotIndex===h.shots.length-1;
  const isLastHole=session.holeIndex===session.holes.length-1;
  if(isLastShot && isLastHole){showReset(true,true);return;}
@@ -302,7 +380,6 @@ function record(){
  else{session.shotIndex++;}
  showReset(isLastShot,false);
 }
-
 
 const resetCues=[
   {eyebrow:'Reset', text:'Deep breath.\nLet it go.'},
@@ -318,92 +395,322 @@ const resetCues=[
 ];
 let lastResetCue=-1;
 let resetTimer=null;
-function showReset(holeComplete=false,finishing=false){
-  let idx;
-  do{idx=Math.floor(Math.random()*resetCues.length)}while(resetCues.length>1 && idx===lastResetCue);
-  lastResetCue=idx;
-  const cue=resetCues[idx];
-  document.getElementById('betweenEyebrow').textContent=holeComplete?'Hole complete · '+cue.eyebrow:cue.eyebrow;
-  document.getElementById('betweenText').textContent=cue.text;
-  const prog=document.getElementById('resetProgress');
-  prog.classList.remove('run'); void prog.offsetWidth; prog.classList.add('run');
-  show('between');
-  clearTimeout(resetTimer);
-  resetTimer=setTimeout(()=>{ resetTimer=null; finishing?renderSummary():renderShot(); },8000);
+let resetInterval=null;
+let resetFinishing=false;
+let resetSeconds=8;
+
+function clearResetTimers(){
+ clearTimeout(resetTimer);
+ clearInterval(resetInterval);
+ resetTimer=null;
+ resetInterval=null;
 }
+function advanceFromReset(){
+ const finishing=resetFinishing;
+ clearResetTimers();
+ resetFinishing=false;
+ if(finishing) renderSummary();
+ else renderShot();
+}
+function showReset(holeComplete=false,finishing=false){
+ let idx;
+ do{idx=Math.floor(Math.random()*resetCues.length)}while(resetCues.length>1 && idx===lastResetCue);
+ lastResetCue=idx;
+ const cue=resetCues[idx];
+
+ resetFinishing=finishing;
+ resetSeconds=8;
+ document.getElementById('betweenEyebrow').textContent=holeComplete?'Hole complete · '+cue.eyebrow:cue.eyebrow;
+ document.getElementById('betweenText').textContent=cue.text;
+ document.getElementById('resetNextBtn').textContent=finishing?'View Stats →':'Next Shot →';
+ document.getElementById('resetCountdown').textContent=finishing?'Stats in 8s':'Next shot in 8s';
+
+ const prog=document.getElementById('resetProgress');
+ prog.classList.remove('run');
+ void prog.offsetWidth;
+ prog.classList.add('run');
+
+ show('between');
+ clearResetTimers();
+
+ resetInterval=setInterval(()=>{
+   resetSeconds=Math.max(0,resetSeconds-1);
+   document.getElementById('resetCountdown').textContent=finishing?`Stats in ${resetSeconds}s`:`Next shot in ${resetSeconds}s`;
+ },1000);
+ resetTimer=setTimeout(advanceFromReset,8000);
+}
+document.getElementById('resetNextBtn').onclick=advanceFromReset;
 
 function quitSession(){
-  clearTimeout(resetTimer);
-  resetTimer=null;
+  clearResetTimers();
   session=null;
-  shotFeedback={result:null,contact:null,shape:null,ballFlight:null,trajectory:null};
+  shotFeedback={result:null,contact:null,shape:null,wideShape:null,ballFlight:null,driverStrike:null};
   const picker=document.getElementById('ballPicker');
   if(picker) picker.style.display='none';
   show('home');
 }
 function endSessionEarly(){
-  if(!session) return;
-  clearTimeout(resetTimer);
-  resetTimer=null;
-  const picker=document.getElementById('ballPicker');
-  if(picker) picker.style.display='none';
-  // Summarize and save only shots already completed. The current unsubmitted shot is ignored.
-  renderSummary();
+ if(!session) return;
+ clearResetTimers();
+ resetFinishing=false;
+ const picker=document.getElementById('ballPicker');
+ if(picker) picker.style.display='none';
+ renderSummary();
 }
 document.getElementById('endSessionBtn').onclick=endSessionEarly;
 document.getElementById('resetEndSessionBtn').onclick=endSessionEarly;
 function pct(n,d){return d?Math.round(n/d*100):0}
+function countValues(rows,key){
+ const counts={};
+ rows.forEach(x=>{const v=x[key];if(v)counts[v]=(counts[v]||0)+1;});
+ return counts;
+}
+function topTendency(rows,key,minForTendency=3){
+ const vals=rows.map(x=>x[key]).filter(Boolean);
+ if(!vals.length) return {n:0,label:null,mixed:false,counts:{}};
+ const counts={}; vals.forEach(v=>counts[v]=(counts[v]||0)+1);
+ const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+ const tied=sorted.length>1 && sorted[0][1]===sorted[1][1];
+ return {n:vals.length,label:(!tied && vals.length>=minForTendency)?sorted[0][0]:null,mixed:tied||vals.length<minForTendency,counts};
+}
+function observationText(rows,key,label){
+ const vals=rows.map(x=>x[key]).filter(Boolean);
+ if(!vals.length) return `${label}: Not logged`;
+ const counts=countValues(rows,key);
+ if(vals.length===1) return `${label}: ${vals[0]}`;
+ if(vals.length===2){
+   const parts=Object.entries(counts).map(([v,n])=>n===1?v:`${n} ${v}`);
+   return `${label}: ${parts.join(' · ')}`;
+ }
+ const t=topTendency(rows,key,3);
+ return t.label?`${label} tendency: ${t.label}`:`${label}: Mixed`;
+}
+function contactText(rows){
+ const logged=rows.filter(x=>x.contact);
+ if(!logged.length) return 'Contact: Not logged';
+ const counts=countValues(logged,'contact');
+ const solid=counts.Solid||0;
+ if(logged.length<3){
+   const parts=['Solid','Thin','Fat'].filter(k=>counts[k]).map(k=>`${counts[k]} ${k}`);
+   return `Contact: ${parts.join(' · ')}`;
+ }
+ return `Solid contact: ${solid} of ${logged.length} — ${pct(solid,logged.length)}%`;
+}
+function directionText(rows){
+ const logged=rows.filter(x=>x.result);
+ if(!logged.length) return 'Result: Not logged';
+ if(logged.length<3){
+   const c=countValues(logged,'result');
+   const parts=['Left','Right','Short','Long'].filter(k=>c[k]).map(k=>`${c[k]} ${k}`);
+   return `Result: ${parts.join(' · ')}`;
+ }
+ const t=topTendency(logged,'result',3);
+ return t.label?`Primary miss: ${t.label}`:'Directional tendency: Mixed';
+}
+function calledShapeText(rows){
+ const called=rows.filter(x=>x.calledShape);
+ if(!called.length) return null;
+ const answered=called.filter(x=>x.actualShape);
+ if(!answered.length) return 'Called shapes: Not logged';
+ const wins=answered.filter(x=>x.actualShape===x.calledShape).length;
+ if(answered.length<3) return `Called shapes matched: ${wins} of ${answered.length}`;
+ return `Called shapes matched: ${wins} of ${answered.length} — ${pct(wins,answered.length)}%`;
+}
+function groupRows(rows){
+ const out={'Driver':[],'Woods & Hybrids':[],'Irons':[],'Wedges':[]};
+ rows.forEach(x=>{
+   const fam=x.family || familyForClub(x.club);
+   if(out[fam]) out[fam].push(x);
+ });
+ return out;
+}
+function groupCard(name,rows){
+ const metrics=[];
+ if(name==='Driver'){
+   metrics.push(observationText(rows,'actualShape','Shape'));
+   metrics.push(observationText(rows,'driverStrike','Strike'));
+   metrics.push(observationText(rows,'ballFlight','Ball flight'));
+ } else if(name==='Woods & Hybrids'){
+   metrics.push(contactText(rows));
+   metrics.push(observationText(rows,'actualShape','Shape'));
+ } else {
+   metrics.push(contactText(rows));
+   metrics.push(directionText(rows));
+   metrics.push(observationText(rows,'ballFlight','Ball flight'));
+   if(name==='Irons'){
+     const called=calledShapeText(rows);
+     if(called) metrics.push(called);
+   }
+ }
+
+ return `<div class="card group-card">
+   <div class="group-head"><div class="group-title">${name}</div><div class="group-count">${rows.length} ${rows.length===1?'shot':'shots'}</div></div>
+   ${metrics.map(m=>{
+     const colon=m.indexOf(':');
+     if(colon>=0){
+       const a=m.slice(0,colon),b=m.slice(colon+1).trim();
+       return `<div class="metric-line"><span>${a}</span><strong>${b}</strong></div>`;
+     }
+     return `<div class="metric-line"><strong>${m}</strong></div>`;
+   }).join('')}
+ </div>`;
+}
+function buildTakeaway(groups){
+ const insights=[];
+ const iron=groups['Irons']||[];
+ const wedges=groups['Wedges']||[];
+ const driver=groups['Driver']||[];
+ const long=groups['Woods & Hybrids']||[];
+
+ function addContactInsight(rows,label){
+   const logged=rows.filter(x=>x.contact);
+   if(logged.length<3) return;
+   const c=countValues(logged,'contact');
+   const solid=c.Solid||0,thin=c.Thin||0,fat=c.Fat||0;
+   if(solid/logged.length>=0.7) insights.push(`Your ${label} contact was consistently solid, with ${solid} of ${logged.length} logged strikes solid.`);
+   else if(thin>solid && thin>fat) insights.push(`Your ${label} showed a tendency toward thin contact.`);
+   else if(fat>solid && fat>thin) insights.push(`Your ${label} showed a tendency toward fat contact.`);
+ }
+ function addDirectionInsight(rows,label){
+   const logged=rows.filter(x=>x.result);
+   if(logged.length<3) return;
+   const t=topTendency(logged,'result',3);
+   if(t.label) insights.push(`Your ${label} favored ${t.label.toLowerCase()} misses today.`);
+ }
+ function addFlightInsight(rows,label){
+   const logged=rows.filter(x=>x.ballFlight);
+   if(logged.length<3) return;
+   const t=topTendency(logged,'ballFlight',3);
+   if(t.label) insights.push(`Your ${label} ball flight tended ${t.label.toLowerCase()}.`);
+ }
+
+ addContactInsight(iron,'iron');
+ addDirectionInsight(iron,'irons');
+ addFlightInsight(iron,'iron');
+ addContactInsight(wedges,'wedge');
+ addDirectionInsight(wedges,'wedges');
+ addFlightInsight(wedges,'wedge');
+ addContactInsight(long,'woods and hybrids');
+
+ const driverShape=driver.filter(x=>x.actualShape);
+ if(driverShape.length>=3){
+   const t=topTendency(driverShape,'actualShape',3);
+   if(t.label) insights.push(`Your driver shape tended toward a ${t.label.toLowerCase()}.`);
+   else insights.push('Your driver shape was mixed, with no clear tendency yet.');
+ }
+ const driverStrike=driver.filter(x=>x.driverStrike);
+ if(driverStrike.length>=3){
+   const t=topTendency(driverStrike,'driverStrike',3);
+   if(t.label) insights.push(`Your driver strike tended toward the ${t.label.toLowerCase()}.`);
+ }
+ const driverFlight=driver.filter(x=>x.ballFlight);
+ if(driverFlight.length>=3){
+   const t=topTendency(driverFlight,'ballFlight',3);
+   if(t.label) insights.push(`Your driver ball flight tended ${t.label.toLowerCase()}.`);
+ }
+
+ if(!insights.length){
+   return 'Not enough shots yet to establish a strong pattern. Keep logging sessions and Range Lab will start identifying your tendencies.';
+ }
+ return insights.slice(0,3).join(' ');
+}
 function renderSummary(fromHistory=false){
- const r=session.results,total=r.length;
- const contactShots=r.filter(x=>x.contact); const solid=contactShots.filter(x=>x.contact==='Solid').length;
- const dir={Left:0,Right:0,Short:0,Long:0}; r.forEach(x=>dir[x.result]=(dir[x.result]||0)+1);
- const dominant=Object.entries(dir).sort((a,b)=>b[1]-a[1])[0]; const directionalShots=r.filter(x=>x.result).length;
- const shaped=r.filter(x=>x.calledShape);
- const shapeAnswered=shaped.filter(x=>x.actualShape); const shapeWins=shapeAnswered.filter(x=>x.actualShape===x.calledShape).length;
- document.getElementById('summaryTitle').textContent=session.mode==='Full Bag'?`${session.balls} balls complete.`:`${session.holes.length} holes complete.`;
- document.getElementById('summarySub').textContent=`${total} called shots. No do-overs.`;
+ const r=(session&&Array.isArray(session.results))?session.results:[];
+ const total=r.length;
+ const groups=groupRows(r);
+ const activeGroups=Object.entries(groups).filter(([,rows])=>rows.length);
+ const anyFeedback=r.filter(x=>x.result||x.contact||x.actualShape||x.driverStrike||x.ballFlight).length;
+ const called=r.filter(x=>x.calledShape);
+ const calledAnswered=called.filter(x=>x.actualShape);
+ const calledWins=calledAnswered.filter(x=>x.actualShape===x.calledShape).length;
+
+ const completedNaturally = session && total>=session.totalPlanned;
+ let title;
+ if(completedNaturally){
+   title=session.mode==='Full Bag'?`${session.balls} balls complete.`:`${session.holes.length} holes complete.`;
+ } else {
+   title='Session ended.';
+ }
+ document.getElementById('summaryTitle').textContent=title;
+ document.getElementById('summarySub').textContent=`${total} completed ${total===1?'shot':'shots'}.`;
+
  document.getElementById('statsGrid').innerHTML=`
- <div class="card stat"><div class="num">${total}</div><div class="label">Total shots</div></div>
- <div class="card stat"><div class="num">${contactShots.length?pct(solid,contactShots.length)+'%':'—'}</div><div class="label">Solid contact</div></div>
- <div class="card stat"><div class="num">${dominant[1]?dominant[0]:'—'}</div><div class="label">Primary miss</div></div>
- <div class="card stat"><div class="num">${shapeAnswered.length?pct(shapeWins,shapeAnswered.length)+'%':'—'}</div><div class="label">Shape executed</div></div>`;
- const groups={}; r.forEach(x=>{groups[x.club]??={n:0,contactN:0,solid:0,shapeN:0,shapeWins:0};groups[x.club].n++;if(x.contact){groups[x.club].contactN++;if(x.contact==='Solid')groups[x.club].solid++;}if(x.calledShape&&x.actualShape){groups[x.club].shapeN++;if(x.actualShape===x.calledShape)groups[x.club].shapeWins++;}});
- const ranked=Object.entries(groups).map(([club,v])=>({club,n:v.n,contactN:v.contactN,p:v.contactN?pct(v.solid,v.contactN):null,shapeN:v.shapeN,shapeP:pct(v.shapeWins,v.shapeN)})).sort((a,b)=>(b.p??-1)-(a.p??-1)||b.n-a.n);
- document.getElementById('clubStats').innerHTML=ranked.map(x=>`<div class="club-row"><span>${x.club} <span class="small">(${x.n})</span></span><strong>${x.contactN?x.p+'% solid':'—'}${x.shapeN?` · ${x.shapeP}% shape`:''}</strong></div>`).join('');
- const rated=ranked.filter(x=>x.contactN); const best=rated[0],worst=[...rated].sort((a,b)=>a.p-b.p||b.n-a.n)[0];
- let takeaway=contactShots.length?`You made solid contact on ${pct(solid,contactShots.length)}% of the shots where you logged contact.`:`You kept the session moving without over-logging every swing.`;
- if(dominant[1]) takeaway+=` Your most common directional miss was ${dominant[0].toLowerCase()}.`;
- if(shapeAnswered.length) takeaway+=` You matched the called shot shape ${pct(shapeWins,shapeAnswered.length)}% of the times you logged shape.`;
- const flightShots=r.filter(x=>x.ballFlight);
- if(flightShots.length){const flights={};flightShots.forEach(x=>flights[x.ballFlight]=(flights[x.ballFlight]||0)+1);const topFlight=Object.entries(flights).sort((a,b)=>b[1]-a[1])[0];takeaway+=` Your most common logged wood/hybrid flight was ${topFlight[0].toLowerCase()}.`;}
- if(best && worst && best.club!==worst.club) takeaway+=` ${best.club} was strongest today; ${worst.club} needs the most work.`;
- takeaway+=` One ball. One decision. One swing.`;
- document.getElementById('takeaway').textContent=takeaway;
+   <div class="card stat"><div class="num">${total}</div><div class="label">Total shots</div></div>
+   <div class="card stat"><div class="num">${anyFeedback}</div><div class="label">Shots logged</div></div>
+   <div class="card stat"><div class="num">${activeGroups.length}</div><div class="label">Club groups</div></div>
+   <div class="card stat"><div class="num">${calledAnswered.length?`${calledWins}/${calledAnswered.length}`:'—'}</div><div class="label">Called shapes</div></div>`;
+
+ document.getElementById('groupStats').innerHTML=activeGroups.length
+   ? activeGroups.map(([name,rows])=>groupCard(name,rows)).join('')
+   : `<div class="card group-card"><div class="group-title">No completed shots</div><p class="small" style="margin-top:8px">Start another session when you're ready.</p></div>`;
+
+ document.getElementById('takeaway').textContent=buildTakeaway(groups);
+
  if(!fromHistory){
-   const record={id:Date.now(),date:new Date().toISOString(),mode:session.mode,balls:session.balls||null,holes:session.holes.length,results:session.results};
-   history.unshift(record); history=history.slice(0,50); localStorage.setItem('rangeLabHistory',JSON.stringify(history));
+   const record={
+     id:Date.now(),
+     date:new Date().toISOString(),
+     mode:session.mode,
+     balls:session.balls||null,
+     holes:session.holes.length,
+     planned:session.totalPlanned,
+     results:r
+   };
+   history.unshift(record);
+   history=history.slice(0,50);
+   localStorage.setItem('rangeLabHistory',JSON.stringify(history));
  }
  show('summary');
 }
 document.getElementById('summaryHome').onclick=()=>show('home');
 document.getElementById('playAgain').onclick=()=>session.mode==='Full Bag'?startFullBag(session.balls):start(session.holes.length);
 
+function normalizeStoredResult(x){
+ const row={...x};
+ row.family=row.family || familyForClub(row.club);
+ if((row.family==='Driver'||row.family==='Woods & Hybrids') &&
+    ['Slice','Fade','Straight','Draw','Hook'].includes(row.ballFlight) && !row.actualShape){
+   row.actualShape=row.ballFlight;
+   row.ballFlight=null;
+ }
+ if((row.family==='Irons'||row.family==='Wedges') && !row.ballFlight && row.trajectory){
+   row.ballFlight=row.trajectory;
+ }
+ return row;
+}
 function renderHistory(){
  const wrap=document.getElementById('historyList');
- if(!history.length){wrap.innerHTML='<div class="history-empty"><h2>No sessions yet.</h2><p>Finish a Range Lab session and your analytics will appear here.</p></div>';return;}
+ if(!history.length){
+   wrap.innerHTML='<div class="history-empty"><h2>No sessions yet.</h2><p>Finish a Range Lab session and your analytics will appear here.</p></div>';
+   return;
+ }
  wrap.innerHTML=history.map((x,i)=>{
-   const total=x.results.length,contact=x.results.filter(r=>r.contact),solid=contact.filter(r=>r.contact==='Solid').length;
-   const shaped=x.results.filter(r=>r.calledShape),wins=shaped.filter(r=>r.actualShape===r.calledShape).length;
+   const results=Array.isArray(x.results)?x.results:[];
+   const total=results.length;
    const date=new Date(x.date).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
-   const label=x.mode==='Full Bag'?`Full Bag · ${x.balls} balls`:`Play ${x.holes} Holes`;
-   return `<button class="history-item" data-history="${i}"><div class="history-top"><span class="history-title">${label}</span><span class="small">${date}</span></div><div class="history-meta">${total} shots · ${contact.length?pct(solid,contact.length)+'% solid':'contact —'}${shaped.length?` · ${pct(wins,shaped.length)}% shape`:''}</div></button>`;
+   const label=x.mode==='Full Bag'?`Full Bag · ${x.balls||total} balls`:`Play ${x.holes||''} Holes`;
+   const logged=results.filter(r=>r.result||r.contact||r.actualShape||r.ballFlight||r.driverStrike||r.trajectory).length;
+   return `<button class="history-item" data-history="${i}">
+     <div class="history-top"><span class="history-title">${label}</span><span class="small">${date}</span></div>
+     <div class="history-meta">${total} ${total===1?'shot':'shots'} · feedback on ${logged}</div>
+   </button>`;
  }).join('');
  wrap.querySelectorAll('[data-history]').forEach(b=>b.onclick=()=>openHistory(+b.dataset.history));
 }
 function openHistory(i){
- const x=history[i]; if(!x)return;
- const holeCount=x.mode==='Full Bag'?1:x.holes;
- session={mode:x.mode,balls:x.balls,holes:Array.from({length:holeCount},(_,j)=>({num:j+1,par:null,shots:[]})),results:x.results,totalPlanned:x.results.length,holeIndex:0,shotIndex:0};
+ const x=history[i];
+ if(!x)return;
+ const results=(Array.isArray(x.results)?x.results:[]).map(normalizeStoredResult);
+ const holeCount=x.mode==='Full Bag'?1:(x.holes||1);
+ session={
+   mode:x.mode,
+   balls:x.balls,
+   holes:Array.from({length:holeCount},(_,j)=>({num:j+1,par:null,shots:[]})),
+   results,
+   totalPlanned:x.planned||results.length,
+   holeIndex:0,
+   shotIndex:0
+ };
  renderSummary(true);
 }
 

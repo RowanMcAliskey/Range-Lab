@@ -1,12 +1,15 @@
-# Range Lab V8
+# Range Lab V9
 
-V8 adds an **End Session** control in the top-right during an active session and during the inter-shot reset.
+This build preserves the existing Range Lab app and adds:
 
-Ending early:
-- stops the active session immediately
-- ignores the current unsubmitted shot
-- preserves shots already completed
-- saves the partial session to Past Sessions
-- opens the normal analytics/stats page
+- Driver feedback: Slice/Fade/Straight/Draw/Hook, Low/High, Toe/Center/Heel
+- Woods & hybrids: shot shape plus Thin/Solid/Fat
+- Irons/wedges: directional result, Thin/Solid/Fat, Low/High
+- Optional feedback on every shot
+- Skippable 8-second reset with live countdown
+- End Session from shot and reset screens, saving partial sessions to analytics/history
+- Club-family analytics: Driver, Woods & Hybrids, Irons, Wedges
+- Small-sample-safe stats and dynamic takeaways
+- Backward-compatible reading of prior saved sessions
 
-Upload `index.html` to the root of the existing GitHub Pages repository.
+Deploy: replace the existing GitHub Pages repository root `index.html` with this `index.html`.
