@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f4f1">
+  <meta name="description" content="Deliberate, one-ball golf practice built to transfer from the range to the course.">
+  <title>Range Lab</title>
+  <style>
+    :root {
+      --bg:#f4f4f1; --surface:#fff; --ink:#171816; --muted:#6d6e68; --line:#d9dad4;
+      --soft:#e9eae5; --accent:#20231f; --accent-2:#c6d26a; --danger:#8b2e2e;
+      --radius:22px; --small:14px; --shadow:0 14px 38px rgba(22,24,20,.06);
+    }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html { background:var(--bg); color:var(--ink); font-size:16px; }
+    body { margin:0; min-height:100vh; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,Helvetica,Arial,sans-serif; }
+    button,input,select { font:inherit; }
+    button { cursor:pointer; color:inherit; }
+    button:focus-visible,input:focus-visible,select:focus-visible { outline:3px solid #767d2b; outline-offset:3px; }
+    h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus { outline:none; }
+    .app { width:100%; max-width:560px; min-height:100vh; margin:0 auto; padding:calc(18px + env(safe-area-inset-top)) 18px calc(28px + env(safe-area-inset-bottom)); }
+    .screen { display:none; min-height:calc(100vh - 46px); }
+    .screen.active { display:flex; flex-direction:column; animation:enter .22s ease; }
+    @keyframes enter { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; } }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { margin-bottom:14px; font-size:clamp(2.6rem,11vw,3.6rem); line-height:.98; letter-spacing:-.055em; }
+    h2 { margin-bottom:12px; font-size:2rem; line-height:1.05; letter-spacing:-.035em; }
+    h3 { margin-bottom:9px; font-size:1.25rem; line-height:1.15; }
+    p { line-height:1.5; }
+    .eyebrow { margin-bottom:10px; color:var(--muted); font-size:.75rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    .muted { color:var(--muted); }
+    .small { font-size:.85rem; }
+    .spacer { flex:1; }
+    .stack { display:grid; gap:12px; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; min-height:46px; margin-bottom:18px; }
+    .brand { font-size:1.18rem; font-weight:850; letter-spacing:-.03em; }
+    .top-actions { display:flex; align-items:center; gap:12px; }
+    .text-btn,.icon-btn { min-height:44px; border:0; background:transparent; font-weight:750; }
+    .text-btn { padding:8px 0; }
+    .icon-btn { min-width:44px; padding:8px; font-size:1.35rem; }
+    .button { width:100%; min-height:58px; padding:14px 18px; border:1px solid var(--line); border-radius:16px; background:var(--surface); font-size:1.05rem; font-weight:800; }
+    .button.primary { border-color:var(--accent); background:var(--accent); color:#fff; }
+    .button.soft { background:var(--soft); }
+    .button.danger { color:var(--danger); }
+    .button:active,.choice-card:active,.club-select:active { transform:scale(.99); }
+    .card { padding:19px; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); box-shadow:var(--shadow); }
+    .callout { padding:17px; border:1px solid #c8cb83; border-radius:18px; background:#f7f8df; }
+    .callout h3 { margin-bottom:6px; }
+    .divider { height:1px; margin:20px 0; background:var(--line); }
+    .hero-copy { margin:26px 0 30px; }
+    .hero-copy p { max-width:430px; color:var(--muted); font-size:1.08rem; }
+    .mantra { color:var(--muted); font-size:.9rem; }
+    .home-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 0 20px; }
+    .home-stat { padding:13px 10px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.58); }
+    .home-stat strong { display:block; font-size:1.35rem; letter-spacing:-.04em; }
+    .home-stat span { color:var(--muted); font-size:.72rem; }
+    .onboarding { justify-content:center; }
+    .onboarding-copy { max-width:450px; }
+    .onboarding-copy p { max-width:420px; color:#555650; font-size:1.16rem; }
+    .dots { display:flex; gap:7px; margin:26px 0 18px; }
+    .dot { width:7px; height:7px; border-radius:50%; background:#cfcfc9; }
+    .dot.active { background:var(--accent); }
+    .choice-grid { display:grid; gap:10px; margin:14px 0 22px; }
+    .choice-card { width:100%; padding:17px; border:1px solid var(--line); border-radius:18px; background:var(--surface); text-align:left; }
+    .choice-card[aria-pressed="true"] { border-color:var(--accent); background:var(--accent); color:#fff; }
+    .choice-title { margin-bottom:4px; font-size:1.13rem; font-weight:850; }
+    .choice-copy { color:var(--muted); font-size:.88rem; line-height:1.42; }
+    .choice-card[aria-pressed="true"] .choice-copy { color:#dfe0da; }
+    .field-card { padding:18px; border:1px solid var(--line); border-radius:18px; background:var(--surface); }
+    .field-label { display:block; margin-bottom:10px; font-size:.86rem; font-weight:800; }
+    .number-wrap { display:flex; align-items:baseline; justify-content:center; gap:8px; }
+    .number-input { width:130px; border:0; background:transparent; color:var(--ink); font-size:3.8rem; font-weight:850; text-align:right; outline:none; }
+    .preset-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:12px; }
+    .preset-row.three { grid-template-columns:repeat(3,1fr); }
+    .preset { min-height:45px; border:1px solid var(--line); border-radius:12px; background:#fafaf8; font-weight:800; }
+    .preset[aria-pressed="true"] { background:var(--accent); color:#fff; }
+    .setting-row { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:60px; padding:13px 0; border-top:1px solid var(--line); }
+    .setting-row:first-child { border-top:0; }
+    .setting-row strong { display:block; }
+    .setting-row span { display:block; margin-top:3px; color:var(--muted); font-size:.82rem; }
+    .switch { position:relative; width:54px; min-width:54px; height:32px; border:0; border-radius:99px; background:#cfd0ca; }
+    .switch::after { position:absolute; top:4px; left:4px; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.18); content:""; transition:transform .18s ease; }
+    .switch[aria-pressed="true"] { background:var(--accent); }
+    .switch[aria-pressed="true"]::after { transform:translateX(22px); }
+    .session-note { margin:18px 0; padding:15px 16px; border-radius:var(--small); background:var(--soft); color:#555650; font-size:.88rem; line-height:1.45; }
+    .progress-line { width:100%; height:5px; margin-bottom:22px; overflow:hidden; border-radius:99px; background:#dedfd9; }
+    .progress-fill { width:0; height:100%; background:var(--accent); transition:width .3s ease; }
+    .shot-count { color:var(--muted); font-size:.78rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
+    .shot-context { margin-top:8px; color:var(--muted); font-size:.95rem; font-weight:700; }
+    .club { margin:20px 0 8px; font-size:clamp(3.25rem,15vw,4.8rem); font-weight:900; letter-spacing:-.065em; line-height:.96; }
+    .distance { display:flex; align-items:baseline; gap:7px; margin-bottom:28px; }
+    .distance strong { font-size:2rem; letter-spacing:-.05em; }
+    .distance span { color:var(--muted); font-size:1rem; font-weight:750; }
+    .shot-call { max-width:450px; margin-bottom:7px; font-size:1.7rem; font-weight:820; letter-spacing:-.03em; line-height:1.12; }
+    .shot-detail { max-width:430px; color:var(--muted); line-height:1.45; }
+    .pre-shot { margin:28px 0; padding-top:20px; border-top:1px solid var(--line); }
+    .pre-shot strong { display:block; margin-bottom:5px; font-size:1.05rem; }
+    .feedback-area { display:grid; gap:14px; margin:18px 0 24px; }
+    .feedback-group { padding:15px; border:1px solid var(--line); border-radius:18px; background:var(--surface); }
+    .feedback-title { margin-bottom:11px; color:var(--muted); font-size:.76rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .feedback-options { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+    .feedback-btn { min-height:44px; padding:8px 13px; border:1px solid var(--line); border-radius:11px; background:#fafaf8; font-size:.9rem; font-weight:750; }
+    .feedback-btn[aria-pressed="true"] { border-color:var(--accent); background:var(--accent); color:#fff; }
+    .direction-pad { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .direction-pad .feedback-btn { width:100%; }
+    .direction-pad .long { grid-column:2; }
+    .direction-pad .left { grid-column:1; grid-row:2; }
+    .direction-pad .target { grid-column:2; grid-row:2; }
+    .direction-pad .right { grid-column:3; grid-row:2; }
+    .direction-pad .short { grid-column:2; grid-row:3; }
+    .reset-screen { justify-content:center; text-align:center; }
+    .reset-stage { margin-bottom:18px; color:var(--muted); font-size:.78rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    .reset-main { max-width:460px; margin:0 auto 12px; font-size:clamp(2.25rem,10vw,3.2rem); font-weight:850; letter-spacing:-.045em; line-height:1.05; }
+    .reset-sub { max-width:370px; margin:0 auto; color:var(--muted); font-size:1.05rem; }
+    .reset-timer { margin-top:28px; color:var(--muted); font-size:.9rem; }
+    .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:18px 0; }
+    .metric { padding:15px 11px; border:1px solid var(--line); border-radius:16px; background:var(--surface); }
+    .metric-value { font-size:1.55rem; font-weight:900; letter-spacing:-.05em; }
+    .metric-label { margin-top:3px; color:var(--muted); font-size:.72rem; }
+    .takeaway { margin:22px 0; padding:20px; border-radius:20px; background:var(--accent); color:#fff; }
+    .takeaway .eyebrow,.takeaway p { color:#d6d8d1; }
+    .analytics-section { margin-top:24px; }
+    .analytics-card { margin-bottom:10px; padding:17px; border:1px solid var(--line); border-radius:18px; background:var(--surface); }
+    .analytics-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+    .score-pill { padding:6px 9px; border:1px solid var(--line); border-radius:99px; background:#f7f7f4; font-size:.75rem; font-weight:800; white-space:nowrap; }
+    .stat-line { display:flex; justify-content:space-between; gap:16px; padding:10px 0; border-top:1px solid #ecece8; font-size:.88rem; }
+    .stat-line:first-of-type { border-top:0; }
+    .stat-line strong { text-align:right; }
+    .pattern { margin-top:9px; padding:10px 12px; border-radius:12px; background:var(--soft); font-size:.83rem; line-height:1.4; }
+    .section-label { margin:22px 0 10px; font-weight:850; }
+    .club-profile { display:grid; gap:8px; }
+    .club-row { display:grid; grid-template-columns:64px 1fr 102px; align-items:center; gap:11px; padding:10px; border:1px solid var(--line); border-radius:15px; background:var(--surface); }
+    .club-select { min-height:46px; border:1px solid var(--line); border-radius:12px; background:#f7f7f4; font-weight:850; }
+    .club-select[aria-pressed="true"] { border-color:var(--accent); background:var(--accent); color:#fff; }
+    .club-name { font-size:.88rem; font-weight:750; }
+    .carry-label { color:var(--muted); font-size:.68rem; font-weight:750; text-transform:uppercase; }
+    .carry-input { width:100%; min-height:42px; margin-top:3px; border:1px solid var(--line); border-radius:10px; background:#fafaf8; text-align:center; font-weight:800; }
+    .carry-input:disabled { opacity:.42; }
+    .history-item { width:100%; padding:16px 0; border:0; border-bottom:1px solid var(--line); background:transparent; text-align:left; }
+    .history-date { display:flex; justify-content:space-between; gap:12px; font-weight:850; }
+    .history-detail { margin-top:5px; color:var(--muted); font-size:.86rem; line-height:1.4; }
+    .chevron { color:var(--muted); }
+    .detail-shot { padding:13px 0; border-top:1px solid var(--line); }
+    .detail-shot:first-child { border-top:0; }
+    .detail-head { display:flex; justify-content:space-between; gap:12px; font-weight:800; }
+    .detail-copy { margin-top:4px; color:var(--muted); font-size:.82rem; line-height:1.4; }
+    .bar-row { margin-top:14px; }
+    .bar-meta { display:flex; justify-content:space-between; margin-bottom:6px; font-size:.83rem; font-weight:750; }
+    .bar-track { height:9px; overflow:hidden; border-radius:99px; background:var(--soft); }
+    .bar-fill { height:100%; border-radius:99px; background:var(--accent); }
+    .trend { color:var(--muted); font-size:.78rem; font-weight:750; }
+    .trend.up { color:#3e650f; }
+    .trend.down { color:var(--danger); }
+    .about-section { padding:20px 0; border-bottom:1px solid var(--line); }
+    .about-section:last-child { border-bottom:0; }
+    .about-section p { color:#555650; }
+    dialog { width:calc(100% - 36px); max-width:520px; padding:0; border:0; border-radius:24px; background:var(--surface); color:var(--ink); box-shadow:0 24px 80px rgba(0,0,0,.25); }
+    dialog::backdrop { background:rgba(0,0,0,.34); }
+    .dialog-body { padding:21px; }
+    .dialog-actions { display:grid; gap:9px; margin-top:18px; }
+    .toast { position:fixed; right:18px; bottom:calc(18px + env(safe-area-inset-bottom)); left:18px; z-index:100; max-width:524px; margin:0 auto; padding:13px 15px; border-radius:13px; background:var(--accent); color:#fff; box-shadow:0 10px 35px rgba(0,0,0,.2); font-size:.88rem; font-weight:750; transform:translateY(140%); transition:transform .2s ease; }
+    .toast.show { transform:none; }
+    .hidden { display:none!important; }
+    @media (max-width:380px) {
+      .app { padding-right:14px; padding-left:14px; }
+      .club-row { grid-template-columns:58px 1fr 92px; gap:8px; }
+      .summary-grid { grid-template-columns:1fr 1fr; }
+      .summary-grid .metric:last-child { grid-column:1/-1; }
+    }
+  </style>
+</head>
+<body>
+<main class="app" id="app">
+  <section class="screen onboarding active" id="onboarding" aria-labelledby="onboardTitle">
+    <div class="spacer"></div>
+    <div class="onboarding-copy">
+      <div class="eyebrow" id="onboardEyebrow">Range Lab</div>
+      <h1 id="onboardTitle"></h1>
+      <p id="onboardCopy"></p>
+    </div>
+    <div class="spacer"></div>
+    <div class="dots" id="onboardDots" aria-hidden="true"></div>
+    <button class="button primary" data-action="next-onboarding" id="onboardButton">Continue</button>
+  </section>
+
+  <section class="screen" id="home" aria-labelledby="homeTitle">
+    <div class="topbar">
+      <div class="brand">Range Lab</div>
+      <div class="top-actions"><button class="text-btn" data-action="show-profile">Profile</button><button class="text-btn" data-action="show-history">History</button><button class="icon-btn" data-action="show-settings" aria-label="Settings" title="Settings">⚙︎</button></div>
+    </div>
+    <div id="resumeCard" class="callout hidden"></div>
+    <div class="hero-copy">
+      <div class="eyebrow">Deliberate range practice</div>
+      <h1 id="homeTitle">Practice the shot you get.</h1>
+      <p>One target. One committed swing. One honest result. Then reset and solve the next problem.</p>
+      <div class="mantra">Hit a shot. Live with it. Move on.</div>
+    </div>
+    <div class="home-stats" id="homeStats"></div>
+    <div class="stack">
+      <button class="button primary" data-action="show-setup">Start a Session</button>
+      <button class="button" data-action="show-bag">My Bag &amp; Distances</button>
+      <button class="button" data-action="show-about">How It Works</button>
+    </div>
+    <div class="spacer"></div>
+    <p class="muted small">Your practice data stays on this device. Export it whenever you want.</p>
+  </section>
+
+  <section class="screen" id="setup" aria-labelledby="setupTitle">
+    <div class="topbar"><button class="text-btn" data-action="go-home">← Back</button><div class="brand">New Session</div><span></span></div>
+    <div class="eyebrow">Practice format</div>
+    <h2 id="setupTitle">What should today feel like?</h2>
+    <div class="choice-grid">
+      <button class="choice-card" data-action="select-mode" data-value="random" aria-pressed="true"><div class="choice-title">Random Practice</div><div class="choice-copy">Move through your bag with no immediate club repeats. Every ball asks a new question.</div></button>
+      <button class="choice-card" data-action="select-mode" data-value="course" aria-pressed="false"><div class="choice-title">Play the Course</div><div class="choice-copy">Work through believable par-3, par-4, and par-5 sequences from tee shot to approach.</div></button>
+    </div>
+    <div class="field-card" id="randomAmount">
+      <label class="field-label" for="ballCount">How many balls?</label>
+      <div class="number-wrap"><input class="number-input" id="ballCount" type="number" min="5" max="200" value="30" inputmode="numeric"><span class="muted">balls</span></div>
+      <div class="preset-row" id="ballPresets"><button class="preset" data-action="set-balls" data-value="10">10</button><button class="preset" data-action="set-balls" data-value="20">20</button><button class="preset" data-action="set-balls" data-value="30" aria-pressed="true">30</button><button class="preset" data-action="set-balls" data-value="50">50</button></div>
+    </div>
+    <div class="field-card hidden" id="courseAmount">
+      <div class="field-label">How many simulated holes?</div>
+      <div class="preset-row" id="holePresets"><button class="preset" data-action="set-holes" data-value="3" aria-pressed="true">3</button><button class="preset" data-action="set-holes" data-value="6">6</button><button class="preset" data-action="set-holes" data-value="9">9</button><button class="preset" data-action="set-holes" data-value="18">18</button></div>
+    </div>
+    <div class="section-label">Difficulty</div>
+    <div class="choice-grid">
+      <button class="choice-card" data-action="select-level" data-value="fundamentals" aria-pressed="true"><div class="choice-title">Fundamentals</div><div class="choice-copy">Stock shots, clear targets, and repeatable decisions.</div></button>
+      <button class="choice-card" data-action="select-level" data-value="advanced" aria-pressed="false"><div class="choice-title">Advanced</div><div class="choice-copy">Controlled shapes, trajectories, landing windows, and miss constraints.</div></button>
+    </div>
+    <div class="session-note"><strong>Distances come from your bag.</strong><br>Range Lab builds each target around the carry numbers you entered, not a generic golfer.</div>
+    <div class="spacer"></div>
+    <button class="button primary" data-action="start-session">Begin Session</button>
+  </section>
+
+  <section class="screen" id="shot" aria-labelledby="clubName">
+    <div class="topbar"><div class="brand">Range Lab</div><button class="icon-btn" data-action="open-session-menu" aria-label="Pause or finish session">×</button></div>
+    <div class="progress-line" role="progressbar" aria-label="Session progress" aria-valuemin="0" aria-valuemax="100" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="shot-count" id="shotCount"></div>
+    <div class="shot-context" id="shotContext"></div>
+    <div class="club" id="clubName"></div>
+    <div class="distance"><strong id="distanceValue"></strong><span>yards</span></div>
+    <div class="shot-call" id="shotCall"></div>
+    <div class="shot-detail" id="shotDetail"></div>
+    <div class="pre-shot"><strong>Choose a real target near that number.</strong><span class="muted">See the shot. Commit to it. Then swing.</span></div>
+    <div class="spacer"></div>
+    <button class="button primary" data-action="shot-hit">I Hit It</button>
+  </section>
+
+  <section class="screen" id="feedback" aria-labelledby="feedbackTitle">
+    <div class="topbar"><div class="shot-count" id="feedbackShotCount"></div><button class="icon-btn" data-action="open-session-menu" aria-label="Pause or finish session">×</button></div>
+    <div class="eyebrow">Optional feedback</div>
+    <h2 id="feedbackTitle">What happened?</h2>
+    <p class="muted">Log only what you noticed. Tap a selected answer again to clear it.</p>
+    <div class="feedback-area" id="feedbackArea"></div>
+    <div class="spacer"></div>
+    <button class="button primary" data-action="complete-feedback">Continue</button>
+  </section>
+
+  <section class="screen reset-screen" id="reset" aria-labelledby="resetMain">
+    <div class="reset-stage">Reset</div>
+    <div class="reset-main" id="resetMain"></div>
+    <div class="reset-sub" id="resetSub"></div>
+    <div class="reset-timer" id="resetTimer" aria-live="polite"></div>
+    <div class="spacer"></div>
+    <button class="button soft" data-action="skip-reset">Next Shot →</button>
+  </section>
+
+  <section class="screen" id="summary" aria-labelledby="summaryTitle">
+    <div class="topbar"><div class="brand">Session Complete</div><span></span></div>
+    <div class="eyebrow">Today</div>
+    <h2 id="summaryTitle"></h2>
+    <div class="summary-grid"><div class="metric"><div class="metric-value" id="metricShots">0</div><div class="metric-label">Shots</div></div><div class="metric"><div class="metric-value" id="metricRecorded">0</div><div class="metric-label">Recorded</div></div><div class="metric"><div class="metric-value" id="metricQuality">—</div><div class="metric-label">Matched goal</div></div></div>
+    <div class="takeaway"><div class="eyebrow">Today’s takeaway</div><h3 id="takeawayTitle"></h3><p id="takeawayText"></p></div>
+    <div class="analytics-section"><div class="eyebrow">Club groups</div><div id="summaryAnalytics"></div></div>
+    <div class="spacer"></div>
+    <div class="stack"><button class="button primary" data-action="finish-summary">Done</button><button class="button" data-action="export-current">Export This Session</button></div>
+  </section>
+
+  <section class="screen" id="bag" aria-labelledby="bagTitle">
+    <div class="topbar"><button class="text-btn" data-action="go-home">← Back</button><div class="brand">My Bag</div><span></span></div>
+    <div class="eyebrow">Personal distances</div>
+    <h2 id="bagTitle">What do your clubs carry?</h2>
+    <p class="muted">Select the clubs you carry and enter a comfortable stock carry. Range Lab uses these numbers for every generated shot.</p>
+    <div id="bagContainer"></div>
+    <div class="spacer"></div>
+    <button class="button primary" data-action="save-bag">Save Bag</button>
+  </section>
+
+  <section class="screen" id="settings" aria-labelledby="settingsTitle">
+    <div class="topbar"><button class="text-btn" data-action="go-home">← Back</button><div class="brand">Settings</div><span></span></div>
+    <div class="eyebrow">Practice preferences</div>
+    <h2 id="settingsTitle">Set your default rhythm.</h2>
+    <div class="card">
+      <div class="field-label">Time between shots</div>
+      <p class="muted small">Range Lab will use this reset pace for every new session.</p>
+      <div class="preset-row three" id="settingsResetPresets">
+        <button class="preset" data-action="set-reset" data-value="3">Quick · 3s</button>
+        <button class="preset" data-action="set-reset" data-value="5">Normal · 5s</button>
+        <button class="preset" data-action="set-reset" data-value="8">Deliberate · 8s</button>
+      </div>
+      <div class="divider"></div>
+      <div class="setting-row">
+        <div><strong>Personalize the mix</strong><span id="settingsAdaptiveHelp">Give recent problem areas a little more practice.</span></div>
+        <button class="switch" id="settingsAdaptiveSwitch" data-action="toggle-settings-adaptive" aria-label="Personalize using recent sessions" aria-pressed="true"></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="history" aria-labelledby="historyTitle">
+    <div class="topbar"><button class="text-btn" data-action="go-home">← Back</button><div class="brand" id="historyTitle">Past Sessions</div><span></span></div>
+    <div id="historyList"></div>
+    <div class="spacer"></div>
+    <div class="stack"><button class="button" data-action="export-all">Export All Sessions</button><button class="button danger" data-action="clear-history">Clear Session History</button></div>
+  </section>
+
+  <section class="screen" id="detail" aria-labelledby="detailTitle">
+    <div class="topbar"><button class="text-btn" data-action="show-history">← History</button><div class="brand">Session Detail</div><span></span></div>
+    <div id="detailContent"></div>
+    <div class="spacer"></div>
+    <div class="stack"><button class="button" data-action="export-detail">Export Session</button><button class="button danger" data-action="delete-detail">Delete Session</button></div>
+  </section>
+
+  <section class="screen" id="profile" aria-labelledby="profileTitle">
+    <div class="topbar"><button class="text-btn" data-action="go-home">← Back</button><div class="brand">Practice Profile</div><span></span></div>
+    <div class="eyebrow">Across sessions</div>
+    <h2 id="profileTitle">What your practice is showing.</h2>
+    <div id="profileContent"></div>
+  </section>
+
+  <section class="screen" id="about" aria-labelledby="aboutTitle">
+    <div class="topbar"><button class="text-btn" data-action="go-home">← Back</button><div class="brand">About</div><span></span></div>
+    <h2 id="aboutTitle">Practice should transfer.</h2>
+    <div class="about-section"><div class="eyebrow">The problem</div><h3>The range lets you erase mistakes.</h3><p>Raking over the same club and immediately correcting the last swing can make practice look better without making golf easier.</p></div>
+    <div class="about-section"><div class="eyebrow">The method</div><h3>One ball. One decision. One consequence.</h3><p>Range Lab gives you a club, a personal distance, and an intention. Pick a target, commit, hit once, and accept the result.</p></div>
+    <div class="about-section"><div class="eyebrow">Two modes</div><h3>Random questions or course-like sequences.</h3><p>Random Practice moves through the bag without immediate repeats. Play the Course links tee shots, approaches, and scoring shots into believable holes.</p></div>
+    <div class="about-section"><div class="eyebrow">Honest analytics</div><h3>A common miss is not automatically a tendency.</h3><p>Range Lab shows counts and percentages. It only calls something a pattern when enough recorded shots support it.</p></div>
+    <div class="about-section"><div class="eyebrow">Privacy</div><h3>Your golf data stays with you.</h3><p>Sessions are stored on this device. There are no accounts, trackers, ads, or outside data calls. Use CSV export to keep a backup.</p></div>
+  </section>
+</main>
+
+<dialog id="appDialog" aria-labelledby="dialogTitle" aria-describedby="dialogMessage">
+  <div class="dialog-body">
+    <div class="eyebrow" id="dialogEyebrow">Range Lab</div>
+    <h3 id="dialogTitle"></h3>
+    <p class="muted" id="dialogMessage"></p>
+    <div class="dialog-actions" id="dialogActions"></div>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const CLUBS = [
+    {name:"Driver",short:"DR",group:"Driver",carry:245},
+    {name:"3 Wood",short:"3W",group:"Woods & Hybrids",carry:220},{name:"5 Wood",short:"5W",group:"Woods & Hybrids",carry:205},{name:"7 Wood",short:"7W",group:"Woods & Hybrids",carry:190},{name:"9 Wood",short:"9W",group:"Woods & Hybrids",carry:175},
+    {name:"3 Hybrid",short:"3H",group:"Woods & Hybrids",carry:200},{name:"4 Hybrid",short:"4H",group:"Woods & Hybrids",carry:190},{name:"5 Hybrid",short:"5H",group:"Woods & Hybrids",carry:180},
+    {name:"4 Iron",short:"4I",group:"Irons",carry:185},{name:"5 Iron",short:"5I",group:"Irons",carry:175},{name:"6 Iron",short:"6I",group:"Irons",carry:165},{name:"7 Iron",short:"7I",group:"Irons",carry:155},{name:"8 Iron",short:"8I",group:"Irons",carry:145},{name:"9 Iron",short:"9I",group:"Irons",carry:135},{name:"Pitching Wedge",short:"PW",group:"Irons",carry:120},
+    {name:"Gap Wedge",short:"GW",group:"Wedges",carry:105},{name:"52°",short:"52°",group:"Wedges",carry:100},{name:"54°",short:"54°",group:"Wedges",carry:90},{name:"56°",short:"56°",group:"Wedges",carry:85},{name:"58°",short:"58°",group:"Wedges",carry:75},{name:"60°",short:"60°",group:"Wedges",carry:65}
+  ];
+  const GROUPS = ["Driver","Woods & Hybrids","Irons","Wedges"];
+  const DEFAULT_SELECTED = new Set(["Driver","5 Wood","4 Iron","5 Iron","6 Iron","7 Iron","8 Iron","9 Iron","Pitching Wedge","Gap Wedge","54°","58°"]);
+  const CATEGORY = {
+    direction:{label:"Direction",neutral:"Target"}, contact:{label:"Contact",neutral:"Solid"},
+    flight:{label:"Ball Flight",neutral:"Normal"}, shape:{label:"Shape",neutral:"Straight"}, strike:{label:"Strike",neutral:"Center"}
+  };
+  const FEEDBACK = {
+    Driver:[{key:"shape",label:"Shape",options:["Slice","Fade","Straight","Draw","Hook"]},{key:"flight",label:"Ball Flight",options:["Low","Normal","High"]},{key:"strike",label:"Strike",options:["Toe","Center","Heel"]}],
+    "Woods & Hybrids":[{key:"shape",label:"Shape",options:["Slice","Fade","Straight","Draw","Hook"]},{key:"contact",label:"Contact",options:["Thin","Solid","Fat"]}],
+    Irons:[{key:"direction",label:"Direction",options:["Long","Left","Target","Right","Short"]},{key:"contact",label:"Contact",options:["Thin","Solid","Fat"]},{key:"flight",label:"Ball Flight",options:["Low","Normal","High"]}],
+    Wedges:[{key:"direction",label:"Direction",options:["Long","Left","Target","Right","Short"]},{key:"contact",label:"Contact",options:["Thin","Solid","Fat"]},{key:"flight",label:"Ball Flight",options:["Low","Normal","High"]}]
+  };
+  const ONBOARDING = [
+    {eyebrow:"Range Lab",title:"Most range sessions are rehearsals.",copy:"Hit a ball. Make a correction. Hit the same shot again. It can feel productive without preparing you for golf."},
+    {eyebrow:"One ball",title:"Golf keeps changing the question.",copy:"Choose a target. Commit to one shot. Accept what happened. Then solve a different problem."},
+    {eyebrow:"The reset",title:"Watch. Accept. Reset.",copy:"The time between swings is part of practice. Clear the last result before you give the next ball your full attention."},
+    {eyebrow:"Your game",title:"Practice your distances, not ours.",copy:"Build your bag once. Range Lab uses your carry numbers, remembers your sessions, and gradually learns where your practice needs attention."}
+  ];
+  const RESET_PROMPTS = [
+    {main:"Watch the ball finish.",sub:"See the result clearly. Accept it. Then let it go."},
+    {main:"That shot is over.",sub:"No correction ball. The next swing is a new decision."},
+    {main:"Take one breath.",sub:"Clear the last result before you prepare again."},
+    {main:"Good or bad, release it.",sub:"Give the next ball your full attention."},
+    {main:"Start fresh.",sub:"One shot is finished. A different problem is next."}
+  ];
+
+  const Util = {
+    clone:v => JSON.parse(JSON.stringify(v)),
+    clamp:(v,min,max) => Math.min(max,Math.max(min,v)),
+    random:a => a[Math.floor(Math.random()*a.length)],
+    weighted(items) {
+      const total=items.reduce((sum,item)=>sum+item.weight,0);
+      let cursor=Math.random()*total;
+      for(const item of items){cursor-=item.weight;if(cursor<=0)return item.value;}
+      return items[items.length-1].value;
+    },
+    round5:v => Math.max(5,Math.round(v/5)*5),
+    escape(value) { return String(value ?? "").replace(/[&<>'"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[ch])); },
+    formatDate(value) {
+      const date=new Date(value); if(Number.isNaN(date.getTime())) return "Unknown date";
+      return date.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+    },
+    percent(value) { return Number.isFinite(value)?`${Math.round(value*100)}%`:"—"; },
+    id() { return `${Date.now()}-${Math.random().toString(36).slice(2,9)}`; }
+  };
+
+  class StorageService {
+    constructor(){this.db=null;this.fallback=false;this.prefix="rangeLabV2:";}
+    async init(){
+      if(!("indexedDB" in window)){this.fallback=true;return;}
+      try{
+        this.db=await new Promise((resolve,reject)=>{
+          const request=indexedDB.open("RangeLabDB",1);
+          request.onupgradeneeded=()=>{
+            const db=request.result;
+            if(!db.objectStoreNames.contains("kv"))db.createObjectStore("kv");
+            if(!db.objectStoreNames.contains("sessions"))db.createObjectStore("sessions",{keyPath:"id"});
+          };
+          request.onsuccess=()=>resolve(request.result); request.onerror=()=>reject(request.error);
+        });
+      }catch(error){this.fallback=true;}
+    }
+    request(request){return new Promise((resolve,reject)=>{request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
+    tx(store,mode="readonly"){return this.db.transaction(store,mode).objectStore(store);}
+    readLocal(key,fallback){try{const raw=localStorage.getItem(this.prefix+key);return raw===null?fallback:JSON.parse(raw);}catch(error){return fallback;}}
+    writeLocal(key,value){localStorage.setItem(this.prefix+key,JSON.stringify(value));}
+    async get(key,fallback=null){if(this.fallback)return this.readLocal(key,fallback);const result=await this.request(this.tx("kv").get(key));return result===undefined?fallback:result;}
+    async set(key,value){if(this.fallback){this.writeLocal(key,value);return;}await this.request(this.tx("kv","readwrite").put(value,key));}
+    async remove(key){if(this.fallback){localStorage.removeItem(this.prefix+key);return;}await this.request(this.tx("kv","readwrite").delete(key));}
+    async listSessions(){
+      if(this.fallback){const value=this.readLocal("sessions",[]);return Array.isArray(value)?value:[];}
+      const values=await this.request(this.tx("sessions").getAll());return values.sort((a,b)=>(b.completedAt||0)-(a.completedAt||0));
+    }
+    async saveSession(session){
+      if(this.fallback){const sessions=await this.listSessions();const next=[session,...sessions.filter(item=>item.id!==session.id)];this.writeLocal("sessions",next);return;}
+      await this.request(this.tx("sessions","readwrite").put(session));
+    }
+    async deleteSession(id){
+      if(this.fallback){this.writeLocal("sessions",(await this.listSessions()).filter(item=>item.id!==id));return;}
+      await this.request(this.tx("sessions","readwrite").delete(id));
+    }
+    async clearSessions(){
+      if(this.fallback){localStorage.removeItem(this.prefix+"sessions");return;}
+      await this.request(this.tx("sessions","readwrite").clear());
+    }
+  }
+
+  const Data = {
+    defaultBag(){return {version:2,clubs:CLUBS.map(c=>({name:c.name,selected:DEFAULT_SELECTED.has(c.name),carry:c.carry}))};},
+    normalizeBag(value){
+      const source=value&&Array.isArray(value.clubs)?value.clubs:[];
+      return {version:2,clubs:CLUBS.map(def=>{
+        const found=source.find(c=>c&&c.name===def.name);
+        return {name:def.name,selected:found?Boolean(found.selected):DEFAULT_SELECTED.has(def.name),carry:Util.clamp(Number(found?.carry)||def.carry,20,400)};
+      })};
+    },
+    settings(value){return {resetSeconds:[3,5,8].includes(Number(value?.resetSeconds))?Number(value.resetSeconds):5,adaptive:value?.adaptive!==false};},
+    expectedFromLegacy(shot){
+      const text=String(shot?.instruction||shot?.call||"").toLowerCase();
+      return {direction:"Target",contact:"Solid",strike:"Center",shape:text.includes("fade")?"Fade":text.includes("draw")||text.includes("turn it over")?"Draw":"Straight",flight:text.includes("low")||text.includes("down")?"Low":text.includes("high")?"High":"Normal"};
+    },
+    normalizeShot(shot,index=0){
+      if(!shot||typeof shot!=="object")return null;
+      const club=CLUBS.find(c=>c.name===shot.club); if(!club)return null;
+      const feedback=shot.feedback&&typeof shot.feedback==="object"?Object.fromEntries(Object.entries(shot.feedback).filter(([k,v])=>CATEGORY[k]&&typeof v==="string")):{};
+      return {number:Number(shot.number)||index+1,club:club.name,group:club.group,distance:Util.clamp(Number(shot.distance)||club.carry,20,400),call:String(shot.call||shot.instruction||"Hit your stock shot."),detail:String(shot.detail||""),context:String(shot.context||""),feedback,expected:{...Data.expectedFromLegacy(shot),...(shot.expected||{})},logged:Object.keys(feedback).length>0,hole:Number(shot.hole)||null,par:Number(shot.par)||null,phase:String(shot.phase||"")};
+    },
+    normalizeSession(session){
+      if(!session||typeof session!=="object")return null;
+      const shots=Array.isArray(session.shots)?session.shots.map(Data.normalizeShot).filter(Boolean):[];
+      const total=Util.clamp(Number(session.totalBalls)||shots.length||1,1,200);
+      return {id:String(session.id||Util.id()),date:String(session.date||new Date().toISOString()),startedAt:Number(session.startedAt)||Date.now(),completedAt:Number(session.completedAt)||Date.now(),mode:session.mode==="course"?"course":"random",level:session.level==="advanced"?"advanced":"fundamentals",resetSeconds:[3,5,8].includes(Number(session.resetSeconds))?Number(session.resetSeconds):5,totalBalls:total,holeCount:Number(session.holeCount)||null,shots,completedBalls:shots.length,endedEarly:Boolean(session.endedEarly)};
+    },
+    normalizeActive(value){
+      if(!value||typeof value!=="object"||!value.session||!Array.isArray(value.session.shots))return null;
+      const raw=value.session,shots=raw.shots.map(Data.normalizeShot).filter(Boolean),coursePlan=Array.isArray(raw.coursePlan)?raw.coursePlan.filter(item=>item&&CLUBS.some(c=>c.name===item.club)).map(item=>({hole:Util.clamp(Number(item.hole)||1,1,18),par:[3,4,5].includes(Number(item.par))?Number(item.par):4,phase:String(item.phase||"Approach"),club:String(item.club),distance:Util.clamp(Number(item.distance)||100,20,400)})):null;
+      const courseMode=raw.mode==="course"&&coursePlan?.length,totalBalls=courseMode?Math.max(shots.length,coursePlan.length):Math.max(Number(raw.totalBalls)||1,shots.length);
+      const session={id:String(raw.id||Util.id()),date:String(raw.date||new Date().toISOString()),startedAt:Number(raw.startedAt)||Date.now(),mode:courseMode?"course":"random",level:raw.level==="advanced"?"advanced":"fundamentals",resetSeconds:[3,5,8].includes(Number(raw.resetSeconds))?Number(raw.resetSeconds):5,adaptive:raw.adaptive!==false,totalBalls:Util.clamp(totalBalls,1,200),holeCount:Number(raw.holeCount)||null,coursePlan,shots};
+      let currentShot=Data.normalizeShot(value.currentShot,shots.length),phase=["shot","feedback","reset","completed"].includes(value.phase)?value.phase:"shot";
+      if((phase==="shot"||phase==="feedback")&&!currentShot)phase="reset";
+      const selectedFeedback=value.selectedFeedback&&typeof value.selectedFeedback==="object"?Object.fromEntries(Object.entries(value.selectedFeedback).filter(([k,v])=>CATEGORY[k]&&typeof v==="string")):{};
+      return {session,currentShot,phase,selectedFeedback,resetPrompt:value.resetPrompt&&typeof value.resetPrompt==="object"?{main:String(value.resetPrompt.main||"Start fresh."),sub:String(value.resetPrompt.sub||"The next shot is a new decision.")}:null,savedAt:Number(value.savedAt)||Date.now()};
+    }
+  };
+
+  const Analytics = {
+    definitionsForShot(shot){
+      const defs=[...(FEEDBACK[shot.group]||[])];
+      if((shot.group==="Irons"||shot.group==="Wedges") && shot.expected?.shape && shot.expected.shape!=="Straight") defs.push({key:"shape",label:"Shape",options:["Slice","Fade","Straight","Draw","Hook"]});
+      return defs;
+    },
+    category(shots,key){
+      const observations=shots.filter(s=>s.feedback&&s.feedback[key]);
+      const total=observations.length;
+      if(!total)return {key,label:CATEGORY[key]?.label||key,total:0,successes:0,successRate:null,commonMiss:null,signal:false};
+      let successes=0;const misses={};
+      observations.forEach(shot=>{const value=shot.feedback[key],expected=shot.expected?.[key]||CATEGORY[key].neutral;if(value===expected)successes++;else misses[value]=(misses[value]||0)+1;});
+      const ranked=Object.entries(misses).sort((a,b)=>b[1]-a[1]);
+      const commonMiss=ranked.length?{value:ranked[0][0],count:ranked[0][1],rate:ranked[0][1]/total}:null;
+      return {key,label:CATEGORY[key]?.label||key,total,successes,successRate:successes/total,commonMiss,signal:Boolean(commonMiss&&commonMiss.count>=3&&commonMiss.rate>=.2&&total>=5)};
+    },
+    group(shots,group){
+      const groupShots=shots.filter(s=>s.group===group),keys=Object.keys(CATEGORY),categories=keys.map(k=>Analytics.category(groupShots,k)).filter(c=>c.total);
+      const observations=categories.reduce((sum,c)=>sum+c.total,0),successes=categories.reduce((sum,c)=>sum+c.successes,0);
+      return {group,shots:groupShots.length,recorded:groupShots.filter(s=>s.logged).length,categories,observations,quality:observations?successes/observations:null,patterns:categories.filter(c=>c.signal).sort((a,b)=>b.commonMiss.rate-a.commonMiss.rate)};
+    },
+    quality(shots){
+      const categories=Object.keys(CATEGORY).map(k=>Analytics.category(shots,k));
+      const total=categories.reduce((s,c)=>s+c.total,0),success=categories.reduce((s,c)=>s+c.successes,0);
+      return total?success/total:null;
+    },
+    weights(sessions){
+      const recent=sessions.slice(0,10),all=recent.flatMap(s=>s.shots||[]),weights={};
+      GROUPS.forEach(group=>{const result=Analytics.group(all,group);weights[group]=result.observations>=8?1+(1-(result.quality??.5))*1.4:1;});
+      return weights;
+    },
+    trend(sessions,group){
+      const withGroup=sessions.filter(s=>(s.shots||[]).some(shot=>shot.group===group));
+      const recent=withGroup.slice(0,3).flatMap(s=>s.shots.filter(shot=>shot.group===group));
+      const prior=withGroup.slice(3,6).flatMap(s=>s.shots.filter(shot=>shot.group===group));
+      const a=Analytics.quality(recent),b=Analytics.quality(prior);
+      if(a===null||b===null||recent.filter(s=>s.logged).length<5||prior.filter(s=>s.logged).length<5)return null;
+      return a-b;
+    },
+    takeaway(shots){
+      const logged=shots.filter(s=>s.logged);if(logged.length<5)return {title:"Keep building the sample.",text:"Record a few more results before treating any miss as a pattern."};
+      const patterns=GROUPS.flatMap(g=>Analytics.group(shots,g).patterns.map(p=>({...p,group:g}))).sort((a,b)=>(b.commonMiss.rate*b.commonMiss.count)-(a.commonMiss.rate*a.commonMiss.count));
+      if(patterns.length){const p=patterns[0];return {title:"A pattern worth watching.",text:`${p.group}: ${p.commonMiss.value} appeared on ${p.commonMiss.count} of ${p.total} recorded ${p.label.toLowerCase()} results (${Math.round(p.commonMiss.rate*100)}%). Watch whether it persists before changing your swing.`};}
+      const q=Analytics.quality(shots);
+      if(q!==null&&q>=.7)return {title:"Strong control today.",text:`${Math.round(q*100)}% of recorded outcomes matched the shot you were trying to hit. Keep testing it across different clubs and targets.`};
+      return {title:"No dominant miss today.",text:"The results were mixed enough that no miss cleared both the sample-size and percentage thresholds for a real pattern."};
+    }
+  };
+
+  const Generator = {
+    recentClubs:[],recentCalls:[],
+    reset(){this.recentClubs=[];this.recentCalls=[];},
+    selected(bag){return bag.clubs.filter(c=>c.selected).map(c=>({...CLUBS.find(d=>d.name===c.name),carry:c.carry}));},
+    distance(club,level){
+      const isWedge=club.group==="Wedges", offsets=level==="advanced"?(isWedge?[-25,-20,-15,-10,-5,0,0]:[-10,-5,0,0,0,5]):(isWedge?[-10,-5,0,0,0,0]:[-5,0,0,0,0]);
+      return Util.round5(club.carry+Util.random(offsets));
+    },
+    chooseClub(clubs,weights,adaptive){
+      let pool=clubs.filter(c=>!this.recentClubs.slice(-2).includes(c.name));if(!pool.length)pool=clubs;
+      const club=Util.weighted(pool.map(c=>({value:c,weight:adaptive?(weights[c.group]||1):1})));
+      this.recentClubs.push(club.name);if(this.recentClubs.length>4)this.recentClubs.shift();return club;
+    },
+    call(club,level){
+      const advanced=level==="advanced";let pool;
+      if(club.group==="Driver") pool=advanced?[
+        {call:"Hit your stock drive.",detail:"Choose a fairway-width window.",shape:"Straight",flight:"Normal",w:40},
+        {call:"Hit a controlled fade.",detail:"Start just left of your target and let it fall right.",shape:"Fade",flight:"Normal",w:17},
+        {call:"Hit a controlled draw.",detail:"Start just right of your target and turn it back.",shape:"Draw",flight:"Normal",w:17},
+        {call:"Flight the driver down.",detail:"Keep it below your normal window without forcing speed.",shape:"Straight",flight:"Low",w:10},
+        {call:"Launch it high.",detail:"Commit to a high window and finish in balance.",shape:"Straight",flight:"High",w:8},
+        {call:"Take the left miss out.",detail:"Pick a start line and finish on the safe side of it.",shape:"Fade",flight:"Normal",w:8}
+      ]:[{call:"Hit your stock drive.",detail:"Choose a fairway-width target.",shape:"Straight",flight:"Normal",w:75},{call:"Pick a fairway and send it there.",detail:"Commit to one start line.",shape:"Straight",flight:"Normal",w:25}];
+      else if(club.group==="Woods & Hybrids") pool=advanced?[
+        {call:"Hit your stock shot.",detail:"Finish inside a 15-yard window.",shape:"Straight",flight:"Normal",w:50},{call:"Hit a controlled fade.",detail:"Start left and let it fall into the target.",shape:"Fade",flight:"Normal",w:16},{call:"Hit a controlled draw.",detail:"Start right and turn it into the target.",shape:"Draw",flight:"Normal",w:16},{call:"Flight it down.",detail:"Hold the finish and control the window.",shape:"Straight",flight:"Low",w:10},{call:"Hit it high.",detail:"Launch it into a higher window.",shape:"Straight",flight:"High",w:8}
+      ]:[{call:"Hit your stock shot.",detail:"Choose a clear target and trust the club.",shape:"Straight",flight:"Normal",w:80},{call:"Send it through a 15-yard window.",detail:"Prioritize start line over perfection.",shape:"Straight",flight:"Normal",w:20}];
+      else if(club.group==="Irons") pool=advanced?[
+        {call:"Hit your stock shot.",detail:"Finish inside a 10-yard window.",shape:"Straight",flight:"Normal",w:46},{call:"Hit a controlled fade.",detail:"Start left of the target and let it fall right.",shape:"Fade",flight:"Normal",w:15},{call:"Hit a controlled draw.",detail:"Start right of the target and turn it back.",shape:"Draw",flight:"Normal",w:15},{call:"Flight it down.",detail:"Control the trajectory without chasing extra speed.",shape:"Straight",flight:"Low",w:10},{call:"Hit it high.",detail:"Use a higher window and hold the finish.",shape:"Straight",flight:"High",w:8},{call:"Do not miss left.",detail:"Choose a conservative target and finish on its safe side.",shape:"Fade",flight:"Normal",w:6}
+      ]:[{call:"Hit your stock shot.",detail:"Choose a precise target and finish in balance.",shape:"Straight",flight:"Normal",w:82},{call:"Finish inside a 12-yard window.",detail:"Commit to the center of it.",shape:"Straight",flight:"Normal",w:18}];
+      else pool=advanced?[
+        {call:"Hit your stock wedge.",detail:"Land it inside a 7-yard window.",shape:"Straight",flight:"Normal",w:52},{call:"Flight it down.",detail:"Control the landing number and first bounce.",shape:"Straight",flight:"Low",w:15},{call:"Hit a high, soft wedge.",detail:"Use a higher window without adding effort.",shape:"Straight",flight:"High",w:13},{call:"Take a little off.",detail:"Keep the same intention with a shorter carry.",shape:"Straight",flight:"Normal",w:20}
+      ]:[{call:"Hit your stock wedge.",detail:"Pick a landing spot near the number.",shape:"Straight",flight:"Normal",w:78},{call:"Land it inside a 10-yard window.",detail:"Let the target, not the swing, hold your attention.",shape:"Straight",flight:"Normal",w:22}];
+      let result=Util.weighted(pool.map(p=>({value:p,weight:p.w}))),tries=0;
+      while(this.recentCalls.slice(-2).includes(result.call)&&tries<6){result=Util.weighted(pool.map(p=>({value:p,weight:p.w})));tries++;}
+      this.recentCalls.push(result.call);if(this.recentCalls.length>5)this.recentCalls.shift();return result;
+    },
+    expected(group,call){
+      const base={shape:call.shape||"Straight",flight:call.flight||"Normal"};
+      if(group==="Driver")return {...base,strike:"Center"};
+      if(group==="Woods & Hybrids")return {shape:base.shape,contact:"Solid"};
+      return {direction:"Target",contact:"Solid",flight:base.flight,shape:base.shape};
+    },
+    randomShot(active,bag,weights){
+      const clubs=this.selected(bag),club=this.chooseClub(clubs,weights,active.session.adaptive),instruction=this.call(club,active.session.level);
+      return this.build(active,club,this.distance(club,active.session.level),instruction,"");
+    },
+    closest(clubs,target,groups=null,exclude=[]){
+      let pool=clubs.filter(c=>(!groups||groups.includes(c.group))&&!exclude.includes(c.name));if(!pool.length)pool=clubs.filter(c=>!exclude.includes(c.name));if(!pool.length)pool=clubs;
+      return [...pool].sort((a,b)=>Math.abs(a.carry-target)-Math.abs(b.carry-target))[0];
+    },
+    coursePlan(holes,bag){
+      const clubs=this.selected(bag),plan=[],pars=[4,3,5,4,4,3,5,4,4,4,3,5,4,4,3,5,4,4];let last=[];
+      for(let i=0;i<holes;i++){
+        const par=pars[i%pars.length],hole=i+1;
+        if(par>=4){const tee=this.closest(clubs,Math.max(...clubs.map(c=>c.carry)),["Driver","Woods & Hybrids"],last.slice(-1));plan.push({hole,par,phase:"Tee shot",club:tee.name,distance:tee.carry});last.push(tee.name);}
+        if(par===5){const target=Util.random([170,180,190,200,210]),second=this.closest(clubs,target,["Woods & Hybrids","Irons"],last.slice(-1));plan.push({hole,par,phase:"Second shot",club:second.name,distance:Util.round5(Math.min(target,second.carry))});last.push(second.name);}
+        const targets=par===3?[110,125,140,155,170,185,200]:par===4?[85,100,115,130,145,160,175]:[70,85,100,115,130];
+        const target=Util.random(targets),approach=this.closest(clubs,target,["Woods & Hybrids","Irons","Wedges"],last.slice(-1));
+        plan.push({hole,par,phase:par===3?"Tee shot":"Approach",club:approach.name,distance:Util.round5(Math.min(target,approach.carry+5))});last.push(approach.name);
+      }
+      return plan;
+    },
+    courseShot(active,bag){
+      const spec=active.session.coursePlan[active.session.shots.length],clubs=this.selected(bag),club=clubs.find(c=>c.name===spec.club)||clubs[0],instruction=this.call(club,active.session.level);
+      return this.build(active,club,spec.distance,instruction,`Hole ${spec.hole} · Par ${spec.par} · ${spec.phase}`,spec);
+    },
+    build(active,club,distance,instruction,context,spec={}){
+      return {number:active.session.shots.length+1,club:club.name,group:club.group,distance,call:instruction.call,detail:instruction.detail,context,feedback:{},expected:this.expected(club.group,instruction),logged:false,hole:spec.hole||null,par:spec.par||null,phase:spec.phase||""};
+    }
+  };
+
+  const UI = {
+    current:"onboarding",toastTimer:null,dialogAction:null,
+    el:id=>document.getElementById(id),
+    go(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const screen=UI.el(id);if(!screen)return;screen.classList.add("active");UI.current=id;window.scrollTo(0,0);const heading=screen.querySelector("h1,h2");if(heading){heading.setAttribute("tabindex","-1");setTimeout(()=>heading.focus({preventScroll:true}),0);}},
+    toast(message){const el=UI.el("toast");el.textContent=message;el.classList.add("show");clearTimeout(UI.toastTimer);UI.toastTimer=setTimeout(()=>el.classList.remove("show"),3200);},
+    dialog({eyebrow="Range Lab",title,message,actions}){
+      const dialog=UI.el("appDialog");UI.el("dialogEyebrow").textContent=eyebrow;UI.el("dialogTitle").textContent=title;UI.el("dialogMessage").textContent=message;
+      UI.el("dialogActions").innerHTML=actions.map((a,i)=>`<button class="button ${a.className||""}" data-dialog-index="${i}">${Util.escape(a.label)}</button>`).join("");
+      UI.dialogAction=actions;dialog.showModal();
+    },
+    closeDialog(){const d=UI.el("appDialog");if(d.open)d.close();UI.dialogAction=null;}
+  };
+
+  const store=new StorageService();
+  const State={bag:Data.defaultBag(),draftBag:null,settings:Data.settings(),sessions:[],active:null,summary:null,selectedFeedback:{},setup:{mode:"random",balls:30,holes:3,level:"fundamentals",adaptive:true},onboardStep:0,detailId:null,resetTimers:[],transitioning:false};
+
+  const App = {
+    async init(){
+      await store.init();await App.migrateLegacy();
+      State.bag=Data.normalizeBag(await App.safeRead("bag",Data.defaultBag()));State.settings=Data.settings(await App.safeRead("settings",{}));
+      State.sessions=(await App.safeListSessions()).map(Data.normalizeSession).filter(Boolean).sort((a,b)=>b.completedAt-a.completedAt);
+      State.active=Data.normalizeActive(await App.safeRead("active",null));
+      App.bind();App.renderOnboarding();App.renderHome();
+      const onboarded=await App.safeRead("onboarded",false);UI.go(onboarded?"home":"onboarding");
+    },
+    async migrateLegacy(){
+      const version=await App.safeRead("schemaVersion",0);if(version>=2)return;
+      try{
+        const oldBag=JSON.parse(localStorage.getItem("rangeLabBag")||"null");
+        if(Array.isArray(oldBag)){const bag=Data.defaultBag();bag.clubs.forEach(c=>c.selected=oldBag.includes(c.name));await store.set("bag",bag);}
+        const oldSessions=JSON.parse(localStorage.getItem("rangeLabSessions")||"[]");
+        if(Array.isArray(oldSessions))for(const raw of oldSessions){const session=Data.normalizeSession(raw);if(session)await store.saveSession(session);}
+        if(localStorage.getItem("rangeLabOnboarded"))await store.set("onboarded",true);
+        await store.set("schemaVersion",2);
+      }catch(error){UI.toast("Your older saved data could not be migrated, but this version is ready to use.");}
+    },
+    async safeRead(key,fallback){try{return await store.get(key,fallback);}catch(error){UI.toast("Saved data could not be read on this device.");return fallback;}},
+    async safeListSessions(){try{return await store.listSessions();}catch(error){UI.toast("Past sessions could not be loaded.");return[];}},
+    async persist(key,value,message="Changes could not be saved on this device."){try{await store.set(key,value);return true;}catch(error){UI.toast(message);return false;}},
+    async persistActive(){if(State.active)await App.persist("active",State.active,"This session is still open, but recovery could not be updated.");},
+    bind(){
+      document.addEventListener("click",App.handleClick);
+      UI.el("bagContainer").addEventListener("input",event=>{if(event.target.matches(".carry-input")){const row=State.draftBag.clubs.find(c=>c.name===event.target.dataset.club);if(row)row.carry=Util.clamp(Number(event.target.value)||row.carry,20,400);}});
+      UI.el("ballCount").addEventListener("input",event=>{State.setup.balls=Util.clamp(Number(event.target.value)||5,5,200);App.updatePresets("ballPresets",State.setup.balls);});
+      UI.el("appDialog").addEventListener("click",event=>{const button=event.target.closest("[data-dialog-index]");if(button&&UI.dialogAction){const action=UI.dialogAction[Number(button.dataset.dialogIndex)];UI.closeDialog();if(action?.run)action.run();}else if(event.target===UI.el("appDialog"))UI.closeDialog();});
+      UI.el("appDialog").addEventListener("cancel",()=>{UI.dialogAction=null;});
+      document.addEventListener("visibilitychange",()=>{if(document.hidden&&State.active)App.persistActive();});
+      window.addEventListener("beforeunload",()=>{App.clearResetTimers();});
+    },
+    handleClick(event){
+      const feedback=event.target.closest(".feedback-btn");if(feedback){App.selectFeedback(feedback);return;}
+      const club=event.target.closest(".club-select");if(club){App.toggleClub(club.dataset.club);return;}
+      const history=event.target.closest(".history-item");if(history){State.detailId=history.dataset.id;App.renderDetail();UI.go("detail");return;}
+      const action=event.target.closest("[data-action]");if(!action)return;
+      const value=action.dataset.value;
+      const actions={
+        "next-onboarding":App.nextOnboarding,"go-home":()=>{App.renderHome();UI.go("home");},"show-setup":App.showSetup,"show-bag":App.showBag,"show-history":App.showHistory,"show-profile":App.showProfile,"show-settings":App.showSettings,"show-about":()=>UI.go("about"),
+        "select-mode":()=>App.selectMode(value),"select-level":()=>App.selectLevel(value),"set-balls":()=>App.setBalls(Number(value)),"set-holes":()=>App.setHoles(Number(value)),"set-reset":()=>App.setReset(Number(value)),"toggle-settings-adaptive":App.toggleSettingsAdaptive,"start-session":App.startSession,
+        "shot-hit":App.shotHit,"complete-feedback":App.completeFeedback,"skip-reset":App.advanceAfterReset,"open-session-menu":App.openSessionMenu,
+        "resume-session":App.resumeSession,"discard-active":App.confirmDiscardActive,"finish-summary":()=>{State.summary=null;App.renderHome();UI.go("home");},"export-current":()=>App.exportSessions(State.summary?[State.summary]:[]),
+        "save-bag":App.saveBag,"export-all":()=>App.exportSessions(State.sessions),"clear-history":App.confirmClearHistory,"export-detail":()=>{const s=State.sessions.find(x=>x.id===State.detailId);if(s)App.exportSessions([s]);},"delete-detail":App.confirmDeleteDetail
+      };if(actions[action.dataset.action])actions[action.dataset.action]();
+    },
+    renderOnboarding(){const item=ONBOARDING[State.onboardStep];UI.el("onboardEyebrow").textContent=item.eyebrow;UI.el("onboardTitle").textContent=item.title;UI.el("onboardCopy").textContent=item.copy;UI.el("onboardDots").innerHTML=ONBOARDING.map((_,i)=>`<span class="dot ${i===State.onboardStep?"active":""}"></span>`).join("");UI.el("onboardButton").textContent=State.onboardStep===ONBOARDING.length-1?"Build My Bag":"Continue";},
+    async nextOnboarding(){if(State.onboardStep<ONBOARDING.length-1){State.onboardStep++;App.renderOnboarding();return;}await App.persist("onboarded",true);App.showBag();},
+    renderHome(){
+      const card=UI.el("resumeCard");if(State.active){const done=State.active.session.shots.length,total=State.active.session.totalBalls;card.classList.remove("hidden");card.innerHTML=`<h3>Session in progress</h3><p class="muted small">${done} of ${total} shots complete · ${State.active.session.mode==="course"?"Play the Course":"Random Practice"}</p><div class="stack"><button class="button primary" data-action="resume-session">Resume Session</button><button class="text-btn danger" data-action="discard-active">Discard</button></div>`;}else{card.classList.add("hidden");card.innerHTML="";}
+      const totalShots=State.sessions.reduce((s,x)=>s+x.shots.length,0),totalLogged=State.sessions.reduce((s,x)=>s+x.shots.filter(shot=>shot.logged).length,0);
+      UI.el("homeStats").innerHTML=`<div class="home-stat"><strong>${State.sessions.length}</strong><span>sessions</span></div><div class="home-stat"><strong>${totalShots}</strong><span>shots</span></div><div class="home-stat"><strong>${totalLogged}</strong><span>results logged</span></div>`;
+    },
+    showSetup(){if(State.active){UI.toast("Finish or discard the current session first.");return;}State.setup={mode:"random",balls:30,holes:3,level:"fundamentals",adaptive:State.settings.adaptive};UI.el("ballCount").value="30";App.selectMode("random");App.selectLevel("fundamentals");App.setBalls(30);App.setHoles(3);UI.go("setup");},
+    selectMode(mode){State.setup.mode=mode;document.querySelectorAll('[data-action="select-mode"]').forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.value===mode)));UI.el("randomAmount").classList.toggle("hidden",mode!=="random");UI.el("courseAmount").classList.toggle("hidden",mode!=="course");},
+    selectLevel(level){State.setup.level=level;document.querySelectorAll('[data-action="select-level"]').forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.value===level)));},
+    updatePresets(id,value){UI.el(id).querySelectorAll(".preset").forEach(b=>b.setAttribute("aria-pressed",String(Number(b.dataset.value)===value)));},
+    setBalls(value){State.setup.balls=value;UI.el("ballCount").value=String(value);App.updatePresets("ballPresets",value);},
+    setHoles(value){State.setup.holes=value;App.updatePresets("holePresets",value);},
+    showSettings(){App.renderSettings();UI.go("settings");},
+    renderSettings(){App.updatePresets("settingsResetPresets",State.settings.resetSeconds);UI.el("settingsAdaptiveSwitch").setAttribute("aria-pressed",String(State.settings.adaptive));const enough=State.sessions.reduce((s,x)=>s+x.shots.filter(y=>y.logged).length,0)>=10;UI.el("settingsAdaptiveHelp").textContent=enough?"Recent problem areas will appear a little more often.":"This begins working once you have enough recorded shots.";},
+    async setReset(value){if(![3,5,8].includes(value))return;State.settings.resetSeconds=value;App.renderSettings();await App.persist("settings",State.settings,"Your reset preference could not be saved.");},
+    async toggleSettingsAdaptive(){State.settings.adaptive=!State.settings.adaptive;App.renderSettings();await App.persist("settings",State.settings,"Your personalization preference could not be saved.");},
+    async startSession(){
+      const selected=Generator.selected(State.bag);if(!selected.length){UI.toast("Select at least one club in My Bag.");return;}
+      const reset=State.settings.resetSeconds,adaptive=State.settings.adaptive;
+      const coursePlan=State.setup.mode==="course"?Generator.coursePlan(State.setup.holes,State.bag):null,total=coursePlan?coursePlan.length:Util.clamp(Number(UI.el("ballCount").value)||30,5,200);
+      State.active={session:{id:Util.id(),date:new Date().toISOString(),startedAt:Date.now(),mode:State.setup.mode,level:State.setup.level,resetSeconds:reset,adaptive,totalBalls:total,holeCount:coursePlan?State.setup.holes:null,coursePlan,shots:[]},currentShot:null,phase:"shot",selectedFeedback:{},resetPrompt:null,savedAt:Date.now()};
+      Generator.reset();await App.generateNextShot();
+    },
+    async generateNextShot(){
+      if(!State.active)return;if(State.active.session.shots.length>=State.active.session.totalBalls){await App.completeSession(false);return;}
+      const weights=Analytics.weights(State.sessions),shot=State.active.session.mode==="course"?Generator.courseShot(State.active,State.bag):Generator.randomShot(State.active,State.bag,weights);
+      State.active.currentShot=shot;State.active.phase="shot";State.active.selectedFeedback={};State.active.savedAt=Date.now();await App.persistActive();App.renderShot();UI.go("shot");
+    },
+    renderShot(){const a=State.active,s=a.currentShot,done=a.session.shots.length,total=a.session.totalBalls;UI.el("shotCount").textContent=`Ball ${done+1} of ${total} · ${a.session.level==="advanced"?"Advanced":"Fundamentals"}`;UI.el("shotContext").textContent=s.context||"New club. New target.";UI.el("clubName").textContent=s.club.toUpperCase();UI.el("distanceValue").textContent=s.distance;UI.el("shotCall").textContent=s.call;UI.el("shotDetail").textContent=s.detail;const progress=Math.round(done/total*100);UI.el("progressFill").style.width=`${progress}%`;UI.el("progressBar").setAttribute("aria-valuenow",String(progress));},
+    async shotHit(){if(!State.active)return;State.active.phase="feedback";State.active.selectedFeedback={};await App.persistActive();App.renderFeedback();UI.go("feedback");},
+    renderFeedback(){const a=State.active,s=a.currentShot;UI.el("feedbackShotCount").textContent=`Ball ${s.number} of ${a.session.totalBalls} · ${s.club}`;const defs=Analytics.definitionsForShot(s);UI.el("feedbackArea").innerHTML=defs.map(def=>{const direction=def.key==="direction";return `<div class="feedback-group"><div class="feedback-title">${Util.escape(def.label)} · trying for ${Util.escape(s.expected[def.key]||CATEGORY[def.key].neutral)}</div><div class="${direction?"direction-pad":"feedback-options"}">${def.options.map(value=>`<button class="feedback-btn ${direction?value.toLowerCase():""}" data-category="${Util.escape(def.key)}" data-value="${Util.escape(value)}" aria-pressed="${String(a.selectedFeedback?.[def.key]===value)}">${Util.escape(value)}</button>`).join("")}</div></div>`;}).join("");},
+    async selectFeedback(button){const key=button.dataset.category,value=button.dataset.value;if(State.active.selectedFeedback[key]===value)delete State.active.selectedFeedback[key];else State.active.selectedFeedback[key]=value;App.renderFeedback();await App.persistActive();},
+    async completeFeedback(){if(!State.active||State.transitioning)return;State.transitioning=true;try{const shot={...State.active.currentShot,feedback:{...State.active.selectedFeedback},logged:Object.keys(State.active.selectedFeedback).length>0};State.active.session.shots.push(shot);State.active.currentShot=null;State.active.selectedFeedback={};State.active.phase="reset";State.active.resetPrompt=Util.random(RESET_PROMPTS);State.active.savedAt=Date.now();await App.persistActive();App.beginReset();}finally{State.transitioning=false;}},
+    beginReset(){App.clearResetTimers();const a=State.active,p=a.resetPrompt||Util.random(RESET_PROMPTS),seconds=a.session.resetSeconds;UI.el("resetMain").textContent=p.main;UI.el("resetSub").textContent=p.sub;UI.go("reset");let remaining=seconds;UI.el("resetTimer").textContent=a.session.shots.length>=a.session.totalBalls?`Session complete in ${remaining}s`:`Next shot in ${remaining}s`;const interval=setInterval(()=>{remaining--;if(remaining<=0){clearInterval(interval);UI.el("resetTimer").textContent="";}else UI.el("resetTimer").textContent=a.session.shots.length>=a.session.totalBalls?`Session complete in ${remaining}s`:`Next shot in ${remaining}s`;},1000);const timeout=setTimeout(App.advanceAfterReset,seconds*1000);State.resetTimers=[interval,timeout];},
+    clearResetTimers(){State.resetTimers.forEach(id=>{clearTimeout(id);clearInterval(id);});State.resetTimers=[];},
+    async advanceAfterReset(){if(State.transitioning)return;State.transitioning=true;App.clearResetTimers();try{if(!State.active)return;if(State.active.session.shots.length>=State.active.session.totalBalls)await App.completeSession(false);else await App.generateNextShot();}finally{State.transitioning=false;}},
+    openSessionMenu(){if(!State.active)return;UI.dialog({eyebrow:"Current session",title:"Pause or finish?",message:"This session is saved after every shot. You can return to it from the home screen.",actions:[{label:"Keep Practicing",className:"primary"},{label:"Pause and Return Home",run:App.pauseSession},{label:"Finish Session Early",className:"danger",run:()=>App.completeSession(true)}]});},
+    async pauseSession(){App.clearResetTimers();await App.persistActive();App.renderHome();UI.go("home");},
+    resumeSession(){if(!State.active)return;Generator.reset();if(State.active.phase==="feedback"&&State.active.currentShot){App.renderFeedback();UI.go("feedback");}else if(State.active.phase==="reset"){App.generateNextShot();}else if(State.active.currentShot){App.renderShot();UI.go("shot");}else App.generateNextShot();},
+    confirmDiscardActive(){UI.dialog({title:"Discard this session?",message:"Completed shots in this unfinished session will be removed. This cannot be undone.",actions:[{label:"Keep Session",className:"primary"},{label:"Discard Session",className:"danger",run:App.discardActive}]});},
+    async discardActive(){App.clearResetTimers();State.active=null;try{await store.remove("active");}catch(error){UI.toast("The saved session could not be removed.");}App.renderHome();UI.go("home");},
+    async completeSession(endedEarly){
+      App.clearResetTimers();if(!State.active)return;const raw=State.active.session;
+      if(!raw.shots.length){await App.discardActive();return;}
+      const session=Data.normalizeSession({...raw,completedAt:Date.now(),endedEarly,completedBalls:raw.shots.length});
+      let saved=false;try{await store.saveSession(session);State.sessions=[session,...State.sessions.filter(s=>s.id!==session.id)];saved=true;}catch(error){UI.toast("The finished session could not be saved. Export it before leaving this screen.");}
+      State.summary=session;if(saved){State.active=null;try{await store.remove("active");}catch(error){}}else{State.active.phase="completed";await App.persistActive();}App.renderSummary(session);UI.go("summary");
+    },
+    renderSummary(session){const shots=session.shots,logged=shots.filter(s=>s.logged),quality=Analytics.quality(shots),takeaway=Analytics.takeaway(shots);UI.el("summaryTitle").textContent=session.endedEarly?`${shots.length} deliberate shots, finished early.`:`${shots.length} deliberate shots.`;UI.el("metricShots").textContent=shots.length;UI.el("metricRecorded").textContent=logged.length;UI.el("metricQuality").textContent=quality===null?"—":Util.percent(quality);UI.el("takeawayTitle").textContent=takeaway.title;UI.el("takeawayText").textContent=takeaway.text;UI.el("summaryAnalytics").innerHTML=App.analyticsHTML(shots);},
+    analyticsHTML(shots){const used=GROUPS.filter(g=>shots.some(s=>s.group===g));if(!used.length)return `<div class="card"><p class="muted">No completed shots yet.</p></div>`;return used.map(group=>{const a=Analytics.group(shots,group),categoryLines=a.categories.map(c=>{const miss=c.commonMiss?`${c.commonMiss.value} · ${c.commonMiss.count} of ${c.total} (${Math.round(c.commonMiss.rate*100)}%)`:"No miss recorded";return `<div class="stat-line"><span>${Util.escape(c.label)}</span><strong>${Util.escape(miss)}</strong></div>`;}).join("");const patterns=a.patterns.map(p=>`<div class="pattern"><strong>Pattern worth watching:</strong> ${Util.escape(p.commonMiss.value)} on ${p.commonMiss.count} of ${p.total} ${Util.escape(p.label.toLowerCase())} results.</div>`).join("");return `<div class="analytics-card"><div class="analytics-head"><h3>${Util.escape(group)}</h3><div class="score-pill">${a.quality===null?"No score":`${Util.percent(a.quality)} matched goal`}</div></div><div class="stat-line"><span>Shots / recorded</span><strong>${a.shots} / ${a.recorded}</strong></div>${categoryLines}${patterns}</div>`;}).join("");},
+    showBag(){State.draftBag=Util.clone(State.bag);App.renderBag();UI.go("bag");},
+    renderBag(){const sections=GROUPS.map(group=>({group,clubs:CLUBS.filter(c=>c.group===group)}));UI.el("bagContainer").innerHTML=sections.map(section=>`<div class="section-label">${Util.escape(section.group)}</div><div class="club-profile">${section.clubs.map(def=>{const item=State.draftBag.clubs.find(c=>c.name===def.name);return `<div class="club-row"><button class="club-select" data-club="${Util.escape(def.name)}" aria-label="${item.selected?"Remove":"Add"} ${Util.escape(def.name)}" aria-pressed="${String(item.selected)}">${Util.escape(def.short)}</button><div class="club-name">${Util.escape(def.name)}</div><label><span class="carry-label">Carry · yd</span><input class="carry-input" type="number" min="20" max="400" inputmode="numeric" data-club="${Util.escape(def.name)}" value="${item.carry}" ${item.selected?"":"disabled"} aria-label="${Util.escape(def.name)} carry distance in yards"></label></div>`;}).join("")}</div>`).join("");},
+    toggleClub(name){const item=State.draftBag.clubs.find(c=>c.name===name);if(!item)return;item.selected=!item.selected;App.renderBag();},
+    async saveBag(){if(!State.draftBag.clubs.some(c=>c.selected)){UI.toast("Select at least one club.");return;}State.bag=Data.normalizeBag(State.draftBag);const ok=await App.persist("bag",State.bag,"Your bag could not be saved.");if(ok){App.renderHome();UI.go("home");UI.toast("Bag and carry distances saved.");}},
+    showHistory(){App.renderHistory();UI.go("history");},
+    renderHistory(){const list=UI.el("historyList");if(!State.sessions.length){list.innerHTML=`<div class="card"><h3>No sessions yet.</h3><p class="muted">Completed sessions will appear here with full shot detail and trends.</p></div>`;return;}list.innerHTML=State.sessions.map(s=>{const quality=Analytics.quality(s.shots),mode=s.mode==="course"?`${s.holeCount||""} holes`:`${s.totalBalls} planned`;return `<button class="history-item" data-id="${Util.escape(s.id)}"><div class="history-date"><span>${Util.escape(Util.formatDate(s.date))}</span><span class="chevron">›</span></div><div class="history-detail">${s.shots.length} shots · ${Util.escape(mode)} · ${s.level==="advanced"?"Advanced":"Fundamentals"} · ${quality===null?"No goal-match score":`${Util.percent(quality)} matched goal`}${s.endedEarly?" · Finished early":""}</div></button>`;}).join("");},
+    renderDetail(){const s=State.sessions.find(x=>x.id===State.detailId);if(!s){App.showHistory();return;}const quality=Analytics.quality(s.shots),shots=s.shots.map(shot=>{const feedback=Object.entries(shot.feedback||{}).map(([k,v])=>`${CATEGORY[k]?.label||k}: ${v}`).join(" · ")||"No feedback logged";return `<div class="detail-shot"><div class="detail-head"><span>${shot.number}. ${Util.escape(shot.club)}</span><span>${shot.distance} yd</span></div><div class="detail-copy">${Util.escape(shot.context||shot.call)}${shot.context?` · ${Util.escape(shot.call)}`:""}<br>${Util.escape(feedback)}</div></div>`;}).join("");UI.el("detailContent").innerHTML=`<div class="eyebrow">${Util.escape(Util.formatDate(s.date))}</div><h2 id="detailTitle">${s.mode==="course"?"Play the Course":"Random Practice"}</h2><div class="summary-grid"><div class="metric"><div class="metric-value">${s.shots.length}</div><div class="metric-label">Shots</div></div><div class="metric"><div class="metric-value">${s.shots.filter(x=>x.logged).length}</div><div class="metric-label">Recorded</div></div><div class="metric"><div class="metric-value">${quality===null?"—":Util.percent(quality)}</div><div class="metric-label">Matched goal</div></div></div><div class="analytics-section">${App.analyticsHTML(s.shots)}</div><div class="section-label">Every shot</div><div class="card">${shots}</div>`;},
+    showProfile(){App.renderProfile();UI.go("profile");},
+    renderProfile(){const root=UI.el("profileContent"),shots=State.sessions.flatMap(s=>s.shots);if(!shots.length){root.innerHTML=`<div class="card"><h3>No profile yet.</h3><p class="muted">Complete a few sessions and record results. Range Lab will separate real patterns from small-sample noise.</p></div>`;return;}const logged=shots.filter(s=>s.logged).length,overall=Analytics.quality(shots);const cards=GROUPS.filter(g=>shots.some(s=>s.group===g)).map(group=>{const a=Analytics.group(shots,group),trend=Analytics.trend(State.sessions,group);let trendText="More history needed",trendClass="";if(trend!==null){if(trend>=.05){trendText=`Improving ${Math.round(trend*100)} pts`;trendClass="up";}else if(trend<=-.05){trendText=`Down ${Math.abs(Math.round(trend*100))} pts`;trendClass="down";}else trendText="Steady across recent sessions";}const bestPattern=a.patterns[0];return `<div class="analytics-card"><div class="analytics-head"><h3>${Util.escape(group)}</h3><span class="trend ${trendClass}">${Util.escape(trendText)}</span></div><div class="bar-row"><div class="bar-meta"><span>Feedback matching goal</span><strong>${a.quality===null?"—":Util.percent(a.quality)}</strong></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round((a.quality||0)*100)}%"></div></div></div><div class="stat-line"><span>Recorded shots</span><strong>${a.recorded}</strong></div>${bestPattern?`<div class="pattern"><strong>Current pattern:</strong> ${Util.escape(bestPattern.commonMiss.value)} · ${bestPattern.commonMiss.count} of ${bestPattern.total} ${Util.escape(bestPattern.label.toLowerCase())} results (${Math.round(bestPattern.commonMiss.rate*100)}%).</div>`:`<div class="pattern">No miss currently clears the pattern threshold.</div>`}</div>`;}).join("");root.innerHTML=`<div class="summary-grid"><div class="metric"><div class="metric-value">${State.sessions.length}</div><div class="metric-label">Sessions</div></div><div class="metric"><div class="metric-value">${logged}</div><div class="metric-label">Recorded shots</div></div><div class="metric"><div class="metric-value">${overall===null?"—":Util.percent(overall)}</div><div class="metric-label">Matched goal</div></div></div><p class="muted small">Matched goal compares each recorded result with what the shot asked for, such as Target, Solid, Normal, Fade, or Center. Trends compare your three most recent relevant sessions with the three before them. A pattern requires at least three matching misses and 20% of the recorded category.</p><div class="analytics-section">${cards}</div>`;},
+    confirmDeleteDetail(){const s=State.sessions.find(x=>x.id===State.detailId);if(!s)return;UI.dialog({title:"Delete this session?",message:`${Util.formatDate(s.date)} and all of its shot detail will be removed.`,actions:[{label:"Keep Session",className:"primary"},{label:"Delete Session",className:"danger",run:App.deleteDetail}]});},
+    async deleteDetail(){try{await store.deleteSession(State.detailId);State.sessions=State.sessions.filter(s=>s.id!==State.detailId);State.detailId=null;App.showHistory();UI.toast("Session deleted.");}catch(error){UI.toast("The session could not be deleted.");}},
+    confirmClearHistory(){if(!State.sessions.length)return;UI.dialog({title:"Clear all session history?",message:"Every completed session and its shot detail will be removed from this device. Export first if you want a backup.",actions:[{label:"Keep History",className:"primary"},{label:"Clear History",className:"danger",run:App.clearHistory}]});},
+    async clearHistory(){try{await store.clearSessions();State.sessions=[];App.renderHistory();UI.toast("Session history cleared.");}catch(error){UI.toast("History could not be cleared.");}},
+    exportSessions(sessions){
+      if(!sessions||!sessions.length){UI.toast("There are no sessions to export.");return;}
+      const headers=["session_id","date","mode","level","ended_early","shot_number","hole","par","phase","club_group","club","target_yards","shot_call","direction","contact","flight","shape","strike","expected_direction","expected_contact","expected_flight","expected_shape","expected_strike"];
+      const rows=[headers,...sessions.flatMap(s=>s.shots.map(shot=>[s.id,s.date,s.mode,s.level,s.endedEarly,shot.number,shot.hole||"",shot.par||"",shot.phase||"",shot.group,shot.club,shot.distance,shot.call,shot.feedback?.direction||"",shot.feedback?.contact||"",shot.feedback?.flight||"",shot.feedback?.shape||"",shot.feedback?.strike||"",shot.expected?.direction||"",shot.expected?.contact||"",shot.expected?.flight||"",shot.expected?.shape||"",shot.expected?.strike||""]))];
+      const csv=rows.map(row=>row.map(value=>`"${String(value??"").replace(/"/g,'""')}"`).join(",")).join("\r\n"),blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=`range-lab-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);UI.toast("CSV export created.");
+    }
+  };
+
+  App.init();
+})();
+</script>
+</body>
+</html>
